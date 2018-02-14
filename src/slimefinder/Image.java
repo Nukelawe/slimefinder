@@ -19,8 +19,8 @@ public class Image {
 		backgroundColor = Color.WHITE,
 		centerColor = Color.RED;
 	private final float[]
-		blockMaskTransparency = {0.6F, 0.6F, 0.6F},
-		chunkMaskTransparency = {0.6F, 0.6F, 0.6F};
+		blockMaskTransparency = {0.55F, 0.55F, 0.55F},
+		chunkMaskTransparency = {0.55F, 0.55F, 0.55F}	;
 	/**
 	 * Width of a single chunk and the whole image in pixels
 	 */
@@ -110,19 +110,17 @@ public class Image {
 									b.setRGB(x, z, slimeColor.getRGB());
 								
 								// Center block
-								if (pImage.drawCenterBlock && xChunk == 0 && zChunk == 0 && xIn == m.posIn.x && zIn == m.posIn.z)
+								if (pImage.drawCenterBlock && isCenter(xChunk, zChunk, xIn - m.posIn.x, zIn - m.posIn.z, 3, 1)) {
 									b.setRGB(x, z, centerColor.getRGB());
-								
-								// Center chunk
-								if (pImage.drawCenterChunk && xChunk == 0 && zChunk == 0)
-									b.setRGB(x, z, centerColor.getRGB());
+									continue;
+								}
 								
 								// Block mask
 								if (pImage.drawBlockMask && !m.isBlockInside(16 * xChunk + xIn, 16 * zChunk + zIn))
 									b.setRGB(x, z, scaleRGB(b.getRGB(x, z), blockMaskTransparency));
 								
 								// Chunk mask
-								if (pImage.drawBlockMask && !m.isChunkInside(xChunk, zChunk) )
+								if (pImage.drawChunkMask && !m.isChunkInside(xChunk, zChunk) )
 									b.setRGB(x, z, scaleRGB(b.getRGB(x, z), chunkMaskTransparency));
 							}
 						}
@@ -136,7 +134,7 @@ public class Image {
 		// Save image
 		String filename = getFilename(m);
 		try {
-			File outputFile	= new File(pImage.outputDir + filename);
+			File outputFile	= new File(pImage.outputDir + "/" + filename);
 			File parentDir = outputFile.getParentFile();
 			if (parentDir != null && !parentDir.exists())
 				parentDir.mkdirs();
@@ -157,5 +155,13 @@ public class Image {
 		int green=(rgb>>8) &0x0ff; green *= transparency[1];
 		int blue= (rgb)    &0x0ff; blue *= transparency[2];
 		return (red << 16) + (green << 8) + blue;
+	}
+	
+	private boolean isCenter(int xChunk, int zChunk, int xIn, int zIn, int width, int thickness) {
+		int x = 16 * xChunk + xIn;
+		int z = 16 * zChunk + zIn;
+		if (Math.abs(x) <= width && Math.abs(z) < thickness) return true;
+		if (Math.abs(z) <= width && Math.abs(x) < thickness) return true;
+		return false;
 	}
 }

@@ -17,18 +17,13 @@ public class CLI {
 	private static SlimeProperties pSlime;
 	private static SearchProperties pSearch;
 	private static ImageProperties pImage;
-	public static boolean verbose;
 	private static final String ln = String.format("%n");
 	
-	public static void main(String[] args) throws Exception {	
+	public static void main(String[] args) throws IOException {	
 		String arg;
 		boolean images = false, search = false;
 		for (int i = 0; i < args.length; i++) {
 			arg = args[i];
-			
-			if (arg.equals("--verbose") || arg.equals("-v") ) {
-				verbose = true;
-			}
 			
 			if (arg.equals("--images") || arg.equals("-i") ) {
 				images = true;
@@ -52,11 +47,11 @@ public class CLI {
 		pSlime = new SlimeProperties();
 		pSearch = new SearchProperties();
 		pImage = new ImageProperties();
+		pSlime.loadProperties(slimeProperties);
 		
 		long time;
 		if (search) {
 			System.out.println("Searching...");
-			pSlime.loadProperties(slimeProperties);
 			pSearch.loadProperties(searchProperties);
 			w = new FileWriter(pSearch.outputDir, pSearch.append);
 			Search s = new Search(pSearch, pSlime);
@@ -68,20 +63,20 @@ public class CLI {
 					pSearch.minChunkSize + " <= chunkSize <= " + pSearch.maxChunkSize + " or " + 
 					pSearch.minBlockSize + " <= blockSize <= " + pSearch.maxBlockSize + "." + ln);
 			
-			if (verbose) println(data("block-position", "chunk-position", "chunkSize", "blockSize"), "extrema", true, true, true);
+			println(data("block-position", "chunk-position", "blockSize", "chunkSize"), "extrema", true, true, true);
 			time = System.nanoTime();
 			int successCount = s.search();
 			time = System.nanoTime() - time;
-			if (verbose) System.out.println();
+			if (true) System.out.println();
 			
 			System.out.println("Checked " + count + " position" + ((count == 1) ? ". " : "s. ") + successCount + " matched the search criteria.");
 			System.out.println("Took " + CLI.formatTime(time) + ((count > 0) ? " (" + time/count + " nanoseconds per position)." : "."));
 			System.out.println("Found the following extrema:");
-			println(data("block-position", "chunk-position", "chunkSize", "blockSize"), "extrema", true, true, true);
-			println(CLI.data(s.minBlock), "(min blockSize)", true, false, false);
-			println(CLI.data(s.maxBlock), "(max blockSize)", true, false, false);
-			println(CLI.data(s.minChunk), "(min chunkSize)", true, false, false);
-			println(CLI.data(s.maxChunk), "(max chunkSize)", true, false, false);
+			println(data("block-position", "chunk-position", "blockSize", "chunkSize"), "extrema", true, false, true);
+			println(CLI.data(s.minBlock), "min-blockSize", true, false, false);
+			println(CLI.data(s.maxBlock), "max-blockSize", true, false, false);
+			println(CLI.data(s.minChunk), "min-chunkSize", true, false, false);
+			println(CLI.data(s.maxChunk), "max-chunkSize", true, false, false);
 			w.close();
 		}
 		
@@ -109,9 +104,6 @@ public class CLI {
 		System.out.println();
 		System.out.println("--search, -s");
 		System.out.println("  Search for positions with specific slime chunk patterns and save them to a file");
-		System.out.println();
-		System.out.println("--verbose, -v");
-		System.out.println("  Print the found positions on the console when in search mode");
 	}
 	
 	public static String formatTime(long nanos) {
@@ -135,8 +127,8 @@ public class CLI {
 	private static String data(String... args) {
 		String s1 = String.format("%1$-20s", args[0]);
 		String s2 = String.format("%1$-20s", args[1]);
-		String s3 = String.format("%1$-20s", args[2]);
-		String s4 = String.format("%1$-12s", args[3]);
+		String s3 = String.format("%1$-16s", args[2]);
+		String s4 = String.format("%1$-10s", args[3]);
 		return s1 + s2 + s3 + s4;
 	}
 	
@@ -146,8 +138,8 @@ public class CLI {
 	public static String data(Mask m) {
 		String s1 = m.posBlock.toString();
 		String s2 = m.posChunk.x + ":" + m.posIn.x + "," + m.posChunk.z + ":" + m.posIn.z;
-		String s3 = m.getChunkSize() + "/" + m.getChunkSurfaceArea();
-		String s4 = m.getBlockSize() + "/" + m.getBlockSurfaceArea();
+		String s3 = Math.round(1000*m.getBlockSize()/256F)/1000F + "/" + Math.round(1000*m.getBlockSurfaceArea()/256F)/1000F;
+		String s4 = m.getChunkSize() + "/" + m.getChunkSurfaceArea();
 		return data(s1, s2, s3, s4);
 	}
 	
@@ -161,7 +153,7 @@ public class CLI {
 	 * @throws IOException
 	 */
 	public static void println(String str, String extremum, boolean writeonConsole, boolean writeOnFile, boolean comment) throws IOException {
-		println(str + String.format("%1$-20s", extremum), writeonConsole, writeOnFile, comment);
+		println(str + extremum, writeonConsole, writeOnFile, comment);
 	}
 	
 	/**

@@ -14,8 +14,7 @@ public class ImageProperties extends AbstractProperties {
 		DRAW_SLIME_CHUNKS = "draw-slime-chunks",
 		DRAW_BLOCK_MASK = "draw-block-mask",
 		DRAW_CHUNK_MASK = "draw-chunk-mask",
-		DRAW_CENTER_BLOCK = "draw-center-block",
-		DRAW_CENTER_CHUNK = "draw-center-chunk";
+		DRAW_CENTER_BLOCK = "draw-center-block";
 	
 	public int 
 		wBlock = 5, 
@@ -24,8 +23,7 @@ public class ImageProperties extends AbstractProperties {
 		drawSlimeChunks = true,
 		drawBlockMask = true,
 		drawChunkMask = true,
-		drawCenterBlock = false,
-		drawCenterChunk = false;
+		drawCenterBlock = false;
 	public String 
 		inputFile,
 		outputDir;
@@ -53,8 +51,6 @@ public class ImageProperties extends AbstractProperties {
 			defaultWarning(DRAW_CHUNK_MASK, "" + drawChunkMask);
 		} try {drawCenterBlock = Boolean.parseBoolean(getProperty(DRAW_CENTER_BLOCK));} catch (Exception e) {
 			defaultWarning(DRAW_CENTER_BLOCK, "" + drawCenterBlock);
-		} try {drawCenterChunk = Boolean.parseBoolean(getProperty(DRAW_CENTER_CHUNK));} catch (Exception e) {
-			defaultWarning(DRAW_CENTER_CHUNK, "" + drawCenterChunk);
 		}
 	}
 	

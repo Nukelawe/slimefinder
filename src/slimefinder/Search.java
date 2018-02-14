@@ -103,7 +103,7 @@ public class Search {
 			
 			if (chunkCriteria || blockCriteria) {
 				++successCount;
-				CLI.println(CLI.data(m), comment, CLI.verbose, true, false);
+				CLI.println(CLI.data(m), comment, true, true, false);
 			}
 			comment = "";
 			
