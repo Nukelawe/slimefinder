@@ -12,6 +12,14 @@ public class SlimeProperties extends AbstractProperties {
 		ELIGIBLE = "eligible-chunks",
 		OFFSET = "y-offset",
 		MIN_WEIGHT = "min-chunk-weight";
+	private final static String[] propertyNames = {
+		SEED,
+		DESPAWN,
+		EXCLUSION,
+		ELIGIBLE,
+		OFFSET,
+		MIN_WEIGHT
+	};
 	public boolean 
 		despawnSphere = true, 
 		exclusionSphere = true, 
@@ -21,6 +29,13 @@ public class SlimeProperties extends AbstractProperties {
 		minChunkWeight = 1;
 	public long 
 		worldSeed = 0;
+	
+	public boolean hasAllProperties() {
+		for (int i = 0; i < propertyNames.length; i++) {
+			if (!containsKey(propertyNames[i])) return false;
+		}
+		return true;
+	}
 	
 	public void loadProperties(String filename) throws IOException {
 		super.loadProperties(filename);

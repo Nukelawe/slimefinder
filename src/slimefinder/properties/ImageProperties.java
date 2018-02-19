@@ -15,7 +15,16 @@ public class ImageProperties extends AbstractProperties {
 		DRAW_BLOCK_MASK = "draw-block-mask",
 		DRAW_CHUNK_MASK = "draw-chunk-mask",
 		DRAW_CENTER_BLOCK = "draw-center-block";
-	
+	private final static String[] propertyNames = {
+		INPUT_FILE,
+		OUTPUT_DIR,
+		BLOCK_WIDTH,
+		GRID_WIDTH,
+		DRAW_SLIME_CHUNKS,
+		DRAW_BLOCK_MASK,
+		DRAW_CHUNK_MASK,
+		DRAW_CENTER_BLOCK
+	};
 	public int 
 		wBlock = 5, 
 		wGrid = 1;
@@ -27,6 +36,13 @@ public class ImageProperties extends AbstractProperties {
 	public String 
 		inputFile,
 		outputDir;
+	
+	public boolean hasAllProperties() {
+		for (int i = 0; i < propertyNames.length; i++) {
+			if (!containsKey(propertyNames[i])) return false;
+		}
+		return true;
+	}
 	
 	public void loadProperties(String filename) throws IOException {
 		super.loadProperties(filename);

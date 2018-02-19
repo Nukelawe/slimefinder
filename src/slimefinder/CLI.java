@@ -57,7 +57,7 @@ public class CLI {
 			Search s = new Search(pSearch, pSlime);
 			
 			int count = Math.max(pSearch.maxWidth * pSearch.maxWidth - pSearch.minWidth * pSearch.minWidth, 0);
-			if (pSearch.thorough) count *= 256;
+			if (pSearch.fineSearch) count *= 256;
 			if (count >= 10000000) System.out.println("Estimated time: " + formatTime(s.timeEstimate(100000) * count));
 			System.out.println("Searching positions with " + 
 					pSearch.minChunkSize + " <= chunkSize <= " + pSearch.maxChunkSize + " or " + 
@@ -96,6 +96,8 @@ public class CLI {
 	}
 	
 	public static void helpMessage() {
+		System.out.println("Slime finder by Nukelawe");
+		System.out.println();
 		System.out.println("--help, -h");
 		System.out.println("  Display this message");
 		System.out.println();

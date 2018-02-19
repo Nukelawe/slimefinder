@@ -7,10 +7,6 @@ import java.util.Properties;
 public abstract class AbstractProperties extends Properties {
 
 	private static final long serialVersionUID = 1L;
-
-	public AbstractProperties() {
-		
-	}
 	
 	public void loadProperties(String filename) throws IOException {
 		FileReader reader = new FileReader(filename);
@@ -22,5 +18,7 @@ public abstract class AbstractProperties extends Properties {
 	protected void defaultWarning(String property, String value) {
 		System.out.println("Warning! " + property + " not specified. Using " + value + " (default).");
 	}
+	
+	abstract boolean hasAllProperties();
 	
 }

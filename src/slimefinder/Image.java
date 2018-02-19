@@ -3,7 +3,6 @@ package slimefinder;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -41,7 +40,13 @@ public class Image {
 		b = new BufferedImage(wImage, wImage, BufferedImage.TYPE_INT_RGB);
 	}
 
-	public int drawImages() throws NumberFormatException, FileNotFoundException {
+	/**
+	 * Draws images of positions specified in the input file and saves them to a .png-files.
+	 * @return number of images generated
+	 * @throws NumberFormatException
+	 * @throws IOException 
+	 */
+	public int drawImages() throws NumberFormatException, IOException {
 		scanner = new Scanner(new File(pImage.inputFile));
 		Mask m = new Mask(pSlime);
 		int successCount = 0;
@@ -70,8 +75,9 @@ public class Image {
 	/**
 	 * Draws a map of the cluster on a png file
 	 * @param m - cluster being drawn
+	 * @throws IOException 
 	 */
-	public void draw(Mask m) {
+	public void draw(Mask m) throws IOException {
 		for (int xChunk = -Mask.R_CHUNK; xChunk <= Mask.R_CHUNK; xChunk++) {
 			for (int zChunk = -Mask.R_CHUNK; zChunk <= Mask.R_CHUNK; zChunk++) {
 				
@@ -141,6 +147,7 @@ public class Image {
 			ImageIO.write(b, "png", outputFile);
 		} catch(IOException e) {
 			System.out.println("Failed to save image '" + filename + "'");
+			throw e;
 		}
 	}
 	

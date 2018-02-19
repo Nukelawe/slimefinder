@@ -48,7 +48,7 @@ public class Search {
 		int successCount = 0;
 		setStartPos(m, pSearch.posIn.x, pSearch.posIn.z);
 		
-		if (pSearch.thorough) {
+		if (pSearch.fineSearch) {
 			for (int xIn = 0; xIn < 16; xIn++) {
 				for (int zIn = 0; zIn < 16; zIn++) {
 					setStartPos(m, xIn, zIn);

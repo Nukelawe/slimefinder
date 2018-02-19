@@ -1,14 +1,26 @@
 package slimefinder.util;
 
 public class Direction {
+	/**
+	 * 1,0
+	 */
 	public static final Direction EAST = new Direction(1, 0);
+	/**
+	 * 0,1
+	 */
 	public static final Direction SOUTH = new Direction(0, 1);
+	/**
+	 * -1,0
+	 */
 	public static final Direction WEST = new Direction(-1, 0);
+	/**
+	 * 0,-1
+	 */
 	public static final Direction NORTH = new Direction(0, -1);
 	
 	public int x, z;
 	
-	public Direction(int dx, int dz) {
+	private Direction(int dx, int dz) {
 		this.x = (dx == 0) ? 0 : (dx > 0) ? 1 : -1;
 		this.z = (dz == 0) ? 0 : (dz > 0) ? 1 : -1;
 	}

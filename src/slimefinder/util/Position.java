@@ -15,16 +15,17 @@ public class Position {
 	 * @throws NumberFormatException if parsing the string fails.
 	 */
 	public static Position parsePos(String parseText) throws NumberFormatException {
-		String message = "Failed to parse position form string: '" + parseText + "'\nExpected format 'xBlock,zBlock' or 'xChunk:xIn,zChunk:zIn'";
-		if (parseText == null) throw new NumberFormatException(message);;
-		if (parseText.trim().equals("")) throw new NumberFormatException(message);;
+		String message = "Failed to parse position from string: '" + parseText + "'\nExpected format 'xBlock,zBlock' or 'xChunk:xIn,zChunk:zIn'.";
+		parseText = parseText.trim();
+		if (parseText == null) throw new NumberFormatException(message);
+		if (parseText.equals("")) throw new NumberFormatException(message);
 		String[] coords = parseText.split(",", 2);
 		if (coords.length != 2) throw new NumberFormatException(message);
 		String[] xCoord = coords[0].split(":", 2);
 		String[] zCoord = coords[1].split(":", 2);
 		try {
 			if (xCoord.length == 1 && zCoord.length == 1) {
-				return new Position(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]));
+				return new Position(Integer.parseInt(xCoord[0]), Integer.parseInt(zCoord[0]));
 			} else if (xCoord.length == 2 && zCoord.length == 2) {
 				return new Position(
 						Integer.parseInt(xCoord[0]) * 16 + Integer.parseInt(xCoord[1]), 
@@ -33,7 +34,7 @@ public class Position {
 				throw new NumberFormatException(message);
 			}
 		} catch (NumberFormatException e) {
-			throw new NumberFormatException(message);
+			throw new NumberFormatException(message + e.getMessage());
 		}
 	}
 
