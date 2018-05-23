@@ -4,11 +4,7 @@ Slime finder is a command line tool to search for locations in a Minecraft world
 
 ## Documentation
 
-[Software requirement specification](https://github.com/Nukelawe/otm/blob/master/Slimefinder/documentation/softwareRequirementSpecification.md)
-
-[Architecture](https://github.com/Nukelawe/otm/blob/master/Slimefinder/documentation/architecture.md)
-
-[Work log](https://github.com/Nukelawe/otm/blob/master/Slimefinder/documentation/workLog.md)
+[User manual](Slimefinder/documentation/user-manual.md)
 
 ## Commands 
 
