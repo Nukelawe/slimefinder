@@ -26,7 +26,7 @@ If both ``-s`` and ``-i`` are given the search will be performed first and the i
 The file ``mask.properties`` defines the parameters necessary in both the image generation and search modes. It has
 the following fields:
 
-| property      | type          | default value  |
+| property | type | default value |
 |:--- |:--- |:---|
 | world-seed     | long | ``0`` |
 | despawn-sphere | boolean  | ``true`` |
@@ -45,11 +45,22 @@ The shape of the block mask is determined by the **y-offset** with respect to th
 
 Each of the mask components can be individually disabled in the ``mask.properties``-file by setting them to false. How the block mask is calculated from the mask components is illustrated below.
 
-img
+Shape of the mask with only despawn sphere enabled  
+![](resources/despawn-sphere.png)
+
+Shape of the mask with only exclusion sphere enabled  
+![](resources/exclusion-sphere.png)
+
+Shape of the mask with both the despawn and exclusion spheres enabled  
+![](resources/block-mask.png)
 
 **Chunk mask** at position P is the set of chunks for which the number of blocks inside the corresponding block mask is greater than the chunk-weight. How the chunk mask depends on the min-chunk-weight is illustrated below.
 
-img
+`chunk-weight = 0`. At least one block in each chunk is contained by the block mask.
+![](resources/chunk-weight=0.png)
+
+`chunk-weight = 255`. Chunks are completely contained by the block mask.
+![](resources/chunk-weight=255.png)
 
 ## Search properties
 
