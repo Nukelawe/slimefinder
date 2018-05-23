@@ -7,7 +7,7 @@ Slime finder is a command line tool to search for locations in a Minecraft world
 
 Run the jar file with the command
 ```
-java -jar slimefinder.jar <command-line-options>
+java -jar slimefinder-<version>.jar <command-line-options>
 ```
 
 ## Documentation
