@@ -1,5 +1,7 @@
 package slimefinder.properties;
 
+import java.io.IOException;
+
 public class ImageProperties extends AbstractProperties {
 
     public static final String INPUT_FILE = "input-file";
@@ -11,50 +13,56 @@ public class ImageProperties extends AbstractProperties {
     public static final String DRAW_CHUNK_MASK = "draw-chunk-mask";
     public static final String DRAW_CENTER = "draw-center";
     
-    public int wBlock = 5, wGrid = 1;
-    public boolean drawSlimeChunks = true, drawBlockMask = true, drawChunkMask = true, drawCenter = true;
-    public String inputFile = "results.dat", outputDir = "images";
+    public int wBlock, wGrid;
+    public boolean drawSlimeChunks, drawBlockMask, drawChunkMask, drawCenter;
+    public String inputFile, outputDir;
 
     public ImageProperties() {
-        filename = "image.properties";
-        defaults.setProperty(INPUT_FILE, inputFile);
-        defaults.setProperty(OUTPUT_DIR, outputDir);
-        defaults.setProperty(GRID_WIDTH, "" + wGrid);
-        defaults.setProperty(BLOCK_WIDTH, "" + wBlock);
-        defaults.setProperty(DRAW_SLIME_CHUNKS, "" + drawSlimeChunks);
-        defaults.setProperty(DRAW_BLOCK_MASK, "" + drawBlockMask);
-        defaults.setProperty(DRAW_CHUNK_MASK, "" + drawChunkMask);
-        defaults.setProperty(DRAW_CENTER, "" + drawCenter);
+    }
+
+    public ImageProperties(String filename) throws IOException {
+        super(filename);
+    }
+
+    protected void setDefaults() {
+        defaultValues.put(INPUT_FILE, "results.csv");
+        defaultValues.put(OUTPUT_DIR, "images");
+        defaultValues.put(GRID_WIDTH, "" + 1);
+        defaultValues.put(BLOCK_WIDTH, "" + 1);
+        defaultValues.put(DRAW_SLIME_CHUNKS, "" + true);
+        defaultValues.put(DRAW_BLOCK_MASK, "" + true);
+        defaultValues.put(DRAW_CHUNK_MASK, "" + true);
+        defaultValues.put(DRAW_CENTER, "" + true);
     }
 
     @Override
     protected void parseProperties() {
-        inputFile = properties.getProperty(INPUT_FILE);
-        outputDir = properties.getProperty(OUTPUT_DIR);
-        
+        inputFile = this.getProperty(INPUT_FILE);
+        outputDir = this.getProperty(OUTPUT_DIR);
+
         try {
-            wBlock = Integer.parseInt(properties.getProperty(BLOCK_WIDTH));
+            wBlock = Integer.parseInt(this.getProperty(BLOCK_WIDTH));
         } catch (NumberFormatException ex) {
             parsingError(BLOCK_WIDTH);
         }
-        
+
         try {
-            wGrid = Integer.parseInt(properties.getProperty(GRID_WIDTH));
+            wGrid = Integer.parseInt(this.getProperty(GRID_WIDTH));
         } catch (NumberFormatException ex) {
             parsingError(GRID_WIDTH);
         }
-        
-        drawSlimeChunks = Boolean.parseBoolean(properties.getProperty(DRAW_SLIME_CHUNKS));
-        properties.setProperty(DRAW_SLIME_CHUNKS, "" + drawSlimeChunks);
-        
-        drawBlockMask = Boolean.parseBoolean(properties.getProperty(DRAW_BLOCK_MASK));
-        properties.setProperty(DRAW_BLOCK_MASK, "" + drawBlockMask);
-        
-        drawChunkMask = Boolean.parseBoolean(properties.getProperty(DRAW_CHUNK_MASK));
-        properties.setProperty(DRAW_CHUNK_MASK, "" + drawChunkMask);
-        
-        drawCenter = Boolean.parseBoolean(properties.getProperty(DRAW_CENTER));
-        properties.setProperty(DRAW_CENTER, "" + drawCenter);
+
+        drawSlimeChunks = Boolean.parseBoolean(this.getProperty(DRAW_SLIME_CHUNKS));
+        this.setProperty(DRAW_SLIME_CHUNKS, "" + drawSlimeChunks);
+
+        drawBlockMask = Boolean.parseBoolean(this.getProperty(DRAW_BLOCK_MASK));
+        this.setProperty(DRAW_BLOCK_MASK, "" + drawBlockMask);
+
+        drawChunkMask = Boolean.parseBoolean(this.getProperty(DRAW_CHUNK_MASK));
+        this.setProperty(DRAW_CHUNK_MASK, "" + drawChunkMask);
+
+        drawCenter = Boolean.parseBoolean(this.getProperty(DRAW_CENTER));
+        this.setProperty(DRAW_CENTER, "" + drawCenter);
     }
 
 }

@@ -1,53 +1,66 @@
 package slimefinder.properties;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
-import slimefinder.cli.Logger;
-import static slimefinder.cli.Logger.warning;
 
-public abstract class AbstractProperties {
-    
-    protected Properties defaults, properties;
-    
+import slimefinder.cli.CLI;
+
+public abstract class AbstractProperties extends Properties {
+
     protected String filename;
+    protected HashMap<String, String> defaultValues;
 
+    /**
+     * Constructs an AbstractProperties object by reading reading a propertiy file.
+     * @param filename
+     * @throws IOException
+     */
+    public AbstractProperties(String filename) throws IOException {
+        this.filename = filename;
+        defaultValues = new HashMap<>();
+        setDefaults();
+        loadProperties();
+    }
+
+    /**
+     * Constructs an AbstractProperites object for testing that needs to be manually initialized.
+     */
     public AbstractProperties() {
-        properties = new Properties();
-        defaults = new Properties();
     }
     
-    public void createProperties() throws IOException {
-        loadProperties(filename);
+    private void loadProperties() throws IOException {
+        readFiles(filename);
         removeUnusedProperties();
         addMissingProperties();
         parseProperties();
         saveProperties(new FileOutputStream(filename));
     }
+
+    protected abstract void setDefaults();
     
-    void loadProperties(String filename) throws IOException {
+    void readFiles(String filename) throws IOException {
         try {
             FileInputStream in = new FileInputStream(filename);
-            properties.load(in);
+            this.load(in);
             in.close();
         } catch (IOException ex) {
-            Logger.error("Could not load properties from file '" + filename + "'");
+            CLI.error("Could not load properties from file '" + filename + "'");
             return;
         }
 
-        Logger.info("Successfully loaded properties from file: '" + filename + "'");
+        CLI.info("Successfully loaded properties from file: '" + filename + "'");
     }
     
     void saveProperties(OutputStream out) throws IOException {
         try {
-            properties.store(out, null);
+            this.store(out, null);
         } catch (IOException ex) {
-            Logger.error("Could not save '" + filename + "'");
+            CLI.error("Could not save '" + filename + "'");
             throw ex;
         } finally {
             out.close();
@@ -55,17 +68,17 @@ public abstract class AbstractProperties {
     }
     
     /**
-     * Removes unused properties i.e. properties not defined in defaults
+     * Removes unused properties i.e. properties not defined in defaultValues
      * @return true if some properties were ignored
      */
     boolean removeUnusedProperties() {
         boolean removed = false;
-        Iterator<Object> iterator = properties.keySet().iterator();
+        Iterator<Object> iterator = this.keySet().iterator();
         while (iterator.hasNext()) {
             String key = iterator.next().toString();
-            if (!defaults.containsKey(key)) {
+            if (!defaultValues.containsKey(key)) {
                 removed = true;
-                Logger.warning("Unused property, '" + key + "' in '" + filename + "'");
+                CLI.warning("Unused property, '" + key + "' in '" + filename + "'");
                 iterator.remove();
             }
         }
@@ -73,17 +86,17 @@ public abstract class AbstractProperties {
     }
     
     /**
-     * Adds missing properties for which defaults exist
+     * Adds missing properties for which defaultValues exist
      * @return true if missing properties were added
      */
     boolean addMissingProperties() {
         boolean missing = false;
-        for (Object key : defaults.keySet()) {
-            if (!properties.containsKey(key)) {
+        for (Object key : defaultValues.keySet()) {
+            if (!this.containsKey(key)) {
                 missing = true;
-                String value = defaults.getProperty((String) key);
-                Logger.warning(key + " not specified. Using default (" + value + ")");
-                properties.setProperty((String) key, value);
+                String value = defaultValues.get(key);
+                CLI.warning(key + " not specified. Using default (" + value + ")");
+                this.setProperty((String) key, value);
             }
         }
         
@@ -91,9 +104,9 @@ public abstract class AbstractProperties {
     }
     
     protected void parsingError(String property) {
-        String defString = defaults.getProperty(property);
-        properties.setProperty(property, defString);
-        warning("Parsing " + property + " failed. Using default (" + defString + ")");
+        String defString = defaultValues.get(property);
+        this.setProperty(property, defString);
+        CLI.warning("Parsing " + property + " failed. Using default (" + defString + ")");
     }
     
     protected abstract void parseProperties();

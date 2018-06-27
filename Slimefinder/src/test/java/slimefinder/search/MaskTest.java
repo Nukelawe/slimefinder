@@ -5,7 +5,7 @@
  */
 package slimefinder.search;
 
-import slimefinder.search.Mask;
+import slimefinder.Mask;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

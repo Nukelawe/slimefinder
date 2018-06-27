@@ -1,4 +1,4 @@
-package slimefinder.search;
+package slimefinder;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -7,7 +7,7 @@ import java.util.Random;
 import slimefinder.properties.MaskProperties;
 import slimefinder.util.*;
 
-public final class Mask {
+public class Mask {
 
     /**
      * The radius of the cluster in chunks. This defines the neighborhood of 
