@@ -1,19 +1,21 @@
 package slimefinder;
 
-import slimefinder.cli.Logger;
-import slimefinder.search.Mask;
+import slimefinder.cli.CLI;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
+import slimefinder.cli.TrackableTask;
 import slimefinder.properties.*;
 import slimefinder.util.Position;
 
-public class ImageGenerator {
+public class ImageGenerator extends TrackableTask {
 
     private final Color gridColor = Color.BLACK,
             slimeColor = Color.GREEN,
@@ -31,6 +33,9 @@ public class ImageGenerator {
     private final ImageProperties pImage;
     private final BufferedImage b;
     private Scanner scanner;
+    private long bytesRead;
+    private long successCount;
+    private File inputFile;
 
     public ImageGenerator(ImageProperties imageProperties, MaskProperties slimeProperties) {
         wChunk = 16 * imageProperties.wBlock + imageProperties.wGrid;
@@ -38,6 +43,7 @@ public class ImageGenerator {
         this.pSlime = slimeProperties;
         this.pImage = imageProperties;
         b = new BufferedImage(wImage, wImage, BufferedImage.TYPE_INT_RGB);
+        inputFile = new File(pImage.inputFile);
     }
 
     /**
@@ -48,50 +54,55 @@ public class ImageGenerator {
      * @throws NumberFormatException
      * @throws IOException
      */
-    public int drawImages() throws NumberFormatException, IOException {        
+    @Override
+    public void run() {
+        setStartTime();
         Mask m = null;
-        int successCount = 0;
-        
+
         try {
-            scanner = new Scanner(new File(pImage.inputFile));
-        } catch (IOException ex) {
-            Logger.error("Could not open file: '" + pImage.inputFile + "'");
-            throw ex;
-        }
-        
-        try {
-            Logger.info("Generating images...");
+            createScanner();
+
+            CLI.info("Generating images...");
             String line;
             while (scanner.hasNextLine()) {
-                line = scanner.nextLine().trim();
-                if (line.length() < 1) {
+                line = scanner.nextLine();
+                bytesRead += line.getBytes().length;
+                if (line.length() < 1) continue;
+                Position pBlock;
+                try {
+                    pBlock = Position.parsePos(line.split("[;\\s]")[0]);
+                } catch (NumberFormatException e) {
+                    CLI.warning(e.getMessage());
                     continue;
                 }
-                if (line.startsWith("#")) {
-                    continue;
-                }
-                Position pBlock = Position.parsePos(line.split("\\s+")[0]);
                 if (m == null) {
                     m = new Mask(pSlime, pBlock.x, pBlock.z);
                 } else {
                     m.moveTo(Math.floorDiv(pBlock.x, 16), Math.floorDiv(pBlock.z, 16), pBlock.x & 15, pBlock.z & 15);
                 }
                 draw(m);
-                ++successCount;
+                successCount++;
             }
-        } catch (NumberFormatException ex) {
-            throw ex;
+        } catch (IOException e) {
         } finally {
             scanner.close();
+            stop();
         }
-        
-        return successCount;
+    }
+
+    private void createScanner() throws FileNotFoundException {
+        try {
+            scanner = new Scanner(new File(pImage.inputFile));
+        } catch (IOException ex) {
+            CLI.error("Could not open file: '" + pImage.inputFile + "'");
+            throw ex;
+        }
     }
 
     /**
-     * Draws a map of the cluster on a png file
+     * Draws a map of the mask on a png file
      *
-     * @param m - cluster being drawn
+     * @param m - mask being drawn
      * @throws IOException
      */
     public void draw(Mask m) throws IOException {
@@ -160,7 +171,7 @@ public class ImageGenerator {
             }
             ImageIO.write(b, "png", outputFile);
         } catch (IOException e) {
-            Logger.error("Failed to save image '" + filename + "'");
+            CLI.error("Failed to save image '" + filename + "'");
             throw e;
         }
     }
@@ -191,5 +202,20 @@ public class ImageGenerator {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public synchronized long getProgress() {
+        return bytesRead;
+    }
+
+    @Override
+    public synchronized long getMaxProgress() {
+        return inputFile.length();
+    }
+
+    @Override
+    public synchronized String getProgressInfo() {
+        return "" + successCount;
     }
 }

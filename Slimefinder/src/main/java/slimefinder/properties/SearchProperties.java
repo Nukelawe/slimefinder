@@ -1,7 +1,9 @@
 package slimefinder.properties;
 
-import slimefinder.search.Mask;
+import slimefinder.Mask;
 import slimefinder.util.Position;
+
+import java.io.IOException;
 
 public class SearchProperties extends AbstractProperties {
     
@@ -16,73 +18,81 @@ public class SearchProperties extends AbstractProperties {
     public static final String RESULTS = "output-file";
     public static final String APPEND = "append";
     
-    public boolean append = false, fineSearch = false;
-    public int minWidth = 0, maxWidth = 1;
-    public int minChunkSize = 0, maxChunkSize = (2 * Mask.R_CHUNK + 1) * (2 * Mask.R_CHUNK + 1);
-    public int minBlockSize = 0, maxBlockSize = maxChunkSize * 256;
-    public String resultsFile = "results.dat";
-    public Position posChunk = Position.origin(), posIn = Position.origin();
+    public boolean append, fineSearch;
+    public int minWidth, maxWidth;
+    public int minChunkSize, maxChunkSize;
+    public int minBlockSize, maxBlockSize;
+    public String resultsFile;
+    public Position posChunk, posIn;
 
     public SearchProperties() {
-        filename = "search.properties";
-        defaults.setProperty(START_POS, new Position(posChunk.x * 16 + posIn.x, posChunk.z * 16 + posIn.z).toString());
-        defaults.setProperty(APPEND, "" + append);
-        defaults.setProperty(FINE_SEARCH, "" + fineSearch);
-        defaults.setProperty(RESULTS, resultsFile);
-        defaults.setProperty(MAX_WIDTH, "" + maxWidth);
-        defaults.setProperty(MIN_WIDTH, "" + minWidth);
-        defaults.setProperty(MAX_CHUNK_SZ, "" + maxChunkSize);
-        defaults.setProperty(MIN_CHUNK_SZ, "" + minChunkSize);
-        defaults.setProperty(MAX_BLOCK_SZ, "" + maxBlockSize);
-        defaults.setProperty(MIN_BLOCK_SZ, "" + minBlockSize);
+    }
+
+    public SearchProperties(String filename) throws IOException {
+        super(filename);
+    }
+
+    protected void setDefaults() {
+        defaultValues.put(START_POS, new Position(0,0).toString());
+        defaultValues.put(APPEND, "" + false);
+        defaultValues.put(FINE_SEARCH, "" + false);
+        defaultValues.put(RESULTS, "results.csv");
+        defaultValues.put(MAX_WIDTH, "" + 1);
+        defaultValues.put(MIN_WIDTH, "" + 0);
+        defaultValues.put(MAX_CHUNK_SZ, "" + (2 * Mask.R_CHUNK + 1) * (2 * Mask.R_CHUNK + 1));
+        defaultValues.put(MIN_CHUNK_SZ, "" + 0);
+        defaultValues.put(MAX_BLOCK_SZ, "" + maxChunkSize * 256);
+        defaultValues.put(MIN_BLOCK_SZ, "" + 0);
     }
 
     @Override
     protected void parseProperties() {
         try {
-            Position posBlock = Position.parsePos(properties.getProperty(START_POS));
+            Position posBlock = Position.parsePos(this.getProperty(START_POS));
+            posChunk = Position.origin();
+            posIn = Position.origin();
             posChunk.setPos(Math.floorDiv(posBlock.x, 16), Math.floorDiv(posBlock.z, 16));
             posIn.setPos(posBlock.x & 15, posBlock.z & 15);
         } catch (NumberFormatException ex) {
             parsingError(START_POS);
         }
         
-        resultsFile = properties.getProperty(RESULTS);
-        append = Boolean.parseBoolean(properties.getProperty(APPEND));
-        fineSearch = Boolean.parseBoolean(properties.getProperty(FINE_SEARCH));
+        resultsFile = this.getProperty(RESULTS);
+        append = Boolean.parseBoolean(this.getProperty(APPEND));
+        fineSearch = Boolean.parseBoolean(this.getProperty(FINE_SEARCH));
         
         try {
-            maxWidth = Integer.parseInt(properties.getProperty(MAX_WIDTH));
+            maxWidth = Integer.parseInt(this.getProperty(MAX_WIDTH));
         } catch (NumberFormatException ex) {
             parsingError(MAX_WIDTH);
         }
         
         try {
-            minWidth = Integer.parseInt(properties.getProperty(MIN_WIDTH));
+            minWidth = Integer.parseInt(this.getProperty(MIN_WIDTH));
         } catch (NumberFormatException ex) {
             parsingError(MIN_WIDTH);
         }
         
         try {
-            minBlockSize = Integer.parseInt(properties.getProperty(MIN_BLOCK_SZ));
+            minBlockSize = Integer.parseInt(this.getProperty(MIN_BLOCK_SZ));
         } catch (NumberFormatException ex) {
             parsingError(MIN_BLOCK_SZ);
         }
         
         try {
-            maxBlockSize = Integer.parseInt(properties.getProperty(MAX_BLOCK_SZ));
+            maxBlockSize = Integer.parseInt(this.getProperty(MAX_BLOCK_SZ));
         } catch (NumberFormatException ex) {
             parsingError(MAX_BLOCK_SZ);
         }
         
         try {
-            minChunkSize = Integer.parseInt(properties.getProperty(MIN_CHUNK_SZ));
+            minChunkSize = Integer.parseInt(this.getProperty(MIN_CHUNK_SZ));
         } catch (NumberFormatException ex) {
             parsingError(MIN_CHUNK_SZ);
         }
         
         try {
-            maxChunkSize = Integer.parseInt(properties.getProperty(MAX_CHUNK_SZ));
+            maxChunkSize = Integer.parseInt(this.getProperty(MAX_CHUNK_SZ));
         } catch (NumberFormatException ex) {
             parsingError(MAX_CHUNK_SZ);
         }

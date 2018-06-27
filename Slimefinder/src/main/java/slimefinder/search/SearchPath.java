@@ -51,7 +51,7 @@ public class SearchPath {
     /**
      * Initializes the position to the start position of the path
      */
-    private void initPosition() {
+    public void initPosition() {
         steps = 0;
         int dx, dz;
         if (minWidth <= 0) {
@@ -136,5 +136,9 @@ public class SearchPath {
      */
     public long getProgress() {
         return progress;
+    }
+
+    public long getPathLength() {
+        return Math.max(maxWidth * maxWidth - minWidth * minWidth, 0);
     }
 }

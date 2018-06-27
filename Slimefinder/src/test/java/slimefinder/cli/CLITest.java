@@ -1,6 +1,5 @@
 package slimefinder.cli;
 
-import slimefinder.cli.CLI;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import org.junit.After;
@@ -18,7 +17,7 @@ public class CLITest {
     private CLI cli;
     
     @Before
-    public void setUpStreams() {
+    public void setUp() {
         System.setOut(new PrintStream(outContent));
         cli = new CLI();
     }

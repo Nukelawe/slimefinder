@@ -1,136 +1,153 @@
 package slimefinder.search;
 
+import slimefinder.Mask;
+import slimefinder.cli.TrackableTask;
 import slimefinder.properties.MaskProperties;
 import slimefinder.properties.SearchProperties;
 
 import java.io.IOException;
-import slimefinder.cli.Logger;
+import java.time.Duration;
+import java.time.Instant;
 
-public class Search {
+import slimefinder.cli.DataLogger;
 
-    public Extremum maxBlock, minBlock, maxChunk, minChunk;
-    
+public class Search extends TrackableTask {
+
+    private ExtremumMask maxBlock, minBlock, maxChunk, minChunk;
     private final MaskProperties pMask;
-    
     private final SearchProperties pSearch;
-    
-    private final Logger logger;
-
-    private String extremumMessage;
-    
+    private final SearchPath path;
+    private final DataLogger logger;
     private long successCount;
-    
     private Mask m;
-    
-    public Search(SearchProperties searchProperties, MaskProperties maskProperties, Logger logger) {
-        pSearch = searchProperties;
-        pMask = maskProperties;
+    private int progress;
+
+    public Search(SearchProperties searchProperties, MaskProperties maskProperties, DataLogger logger) {
+        this.pSearch = searchProperties;
+        this.pMask = maskProperties;
         this.logger = logger;
-        extremumMessage = "";
+        this.path = new SearchPath(pSearch.posChunk, pSearch.minWidth, pSearch.maxWidth);
     }
 
     /**
      * Searches the area specified by the search properties for slime chunk
      * clusters that match given criteria.
-     *
-     * @throws java.io.IOException
      */
-    public void search() throws IOException {
-        logger.start();
+    @Override
+    public void run() {
+        setStartTime();
         successCount = 0;
+        try {
+            logger.start();
+            search();
+        } catch (IOException e) {
+        } finally {
+            logger.close();
+            stop();
+        }
+    }
+
+    public void search() throws IOException {
         if (pSearch.fineSearch) {
             for (int xIn = 0; xIn < 16; xIn++) {
                 for (int zIn = 0; zIn < 16; zIn++) {
                     chunkSearch(xIn, zIn);
+                    ++progress;
                 }
             }
         } else {
             chunkSearch(pSearch.posIn.x, pSearch.posIn.z);
         }
-        logger.stop();
     }
 
     /**
      * Searches only one block position in each chunk. Never moves the mask
      * within the chunk.
-     *
-     * @throws java.io.IOException
      */
     private void chunkSearch(int xIn, int zIn) throws IOException {
-        SearchPath path = new SearchPath(pSearch.posChunk, pSearch.minWidth, pSearch.maxWidth);
-        while (path.step()) {
-            logger.progressBar.stepBy(1);
+        path.initPosition();
+        do {
             if (m == null) {
-                m = new Mask(pMask, path.getPosition().x, path.getPosition().z, xIn, zIn);
+                initializeMasks(xIn, zIn);
             } else {
                 m.moveTo(path.getPosition().x, path.getPosition().z, xIn, zIn);
+                ExtremumMask[] extrema = {maxBlock, maxChunk, minBlock, minChunk};
+                for (ExtremumMask extremum : extrema) extremum.moveTo(m);
             }
-            updateExtrema();
-            if (matchesSearchCriteria()) {
+            if (matchesSearchCriteria(m.getChunkSize(), m.getBlockSize(), pSearch)) {
                 ++successCount;
-                logger.write(Logger.formatData(m) + extremumMessage);
-                logger.progressBar.setExtraMessage(successCount + " matches");
+                logger.write(DataLogger.formatData(m));
             }
-        }
+        } while (path.step());
     }
-    
-    private boolean matchesSearchCriteria() {
-        int chunkSize = m.getChunkSize();
-        int blockSize = m.getBlockSize();
+
+    /**
+     * @param chunkSize
+     * @param blockSize
+     * @param pSearch
+     * @return true if a mask with the given chunk and block sizes matches the given search criteria.
+     * The mask matches if either the block or the chunk size is within the the range determined by the search
+     * properties.
+     */
+    static boolean matchesSearchCriteria(int chunkSize, int blockSize, SearchProperties pSearch) {
         boolean chunkSizeCriteria = chunkSize >= pSearch.minChunkSize && chunkSize <= pSearch.maxChunkSize;
         boolean blockSizeCriteria = blockSize >= pSearch.minBlockSize && blockSize <= pSearch.maxBlockSize;
         return chunkSizeCriteria || blockSizeCriteria;
     }
-    
-    private void updateExtrema() {
-        extremumMessage = "";
-        if (maxBlock == null) initializeExtrema();
-        Extremum[] extrema = {maxBlock, minBlock, maxChunk, minChunk};
-        for (Extremum extremum : extrema) {
-            if (extremum.needsUpdate(m)) {
-                extremum.mask.moveTo(m);
-                appendExtremumMessage(extremum.getInfo());
-            }
-        }
+
+    private void initializeMasks(int xIn, int zIn) {
+        m = new Mask(pMask, path.getPosition().x, path.getPosition().z, xIn, zIn);
+        maxBlock = new ExtremumMask(m) {
+            @Override
+            public boolean needsUpdate(Mask mask) { return this.getBlockSize() < mask.getBlockSize(); }
+        };
+        minBlock = new ExtremumMask(m) {
+            @Override
+            public boolean needsUpdate(Mask mask) { return this.getBlockSize() > mask.getBlockSize(); }
+        };
+        maxChunk = new ExtremumMask(m) {
+            @Override
+            public boolean needsUpdate(Mask mask) { return this.getChunkSize() < mask.getChunkSize(); }
+        };
+        minChunk = new ExtremumMask(m) {
+            @Override
+            public boolean needsUpdate(Mask mask) { return this.getChunkSize() > mask.getChunkSize(); }
+        };
     }
 
-    private void initializeExtrema() {
-        maxBlock = new Extremum("maxB", m) {
-            @Override
-            public boolean needsUpdate(Mask mask) {
-                return this.mask.getBlockSize() < mask.getBlockSize();
-            }
-        };
-        minBlock = new Extremum("minB", m) {
-            @Override
-            public boolean needsUpdate(Mask mask) {
-                return this.mask.getBlockSize() > mask.getBlockSize();
-            }
-        };
-        maxChunk = new Extremum("maxC", m) {
-            @Override
-            public boolean needsUpdate(Mask mask) {
-                return this.mask.getChunkSize() < mask.getChunkSize();
-            }
-        };
-        minChunk = new Extremum("minC", m) {
-            @Override
-            public boolean needsUpdate(Mask mask) {
-                return this.mask.getChunkSize() > mask.getChunkSize();
-            }
-        };
-        
-        Extremum[] extrema = {maxBlock, minBlock, maxChunk, minChunk};
-        for (Extremum extremum : extrema) {
-            appendExtremumMessage(extremum.getInfo());
-        }
-    }
-    
     /**
-     * Builds a comma separated list of extremum information
-     * @param str - extremum info to be appended
+     * @return total number of positions searched.
      */
-    private void appendExtremumMessage(String str) {
-        extremumMessage += ((extremumMessage.length() > 0) ? "," : "") + str;
+    public synchronized long getProgress() {
+        return path.getProgress() + this.progress * path.getPathLength();
+    }
+
+    public synchronized String getProgressInfo() {
+        return successCount + " matches";
+    }
+
+    /**
+     * @return total number of positions searched once the search is complete.
+     */
+    public synchronized long getMaxProgress() {
+        long count = path.getPathLength();
+        if (pSearch.fineSearch) count *= 256;
+        return count;
+    }
+
+    public synchronized ExtremumMask getMaxBlock() {
+        return maxBlock;
+    }
+
+    public synchronized ExtremumMask getMinBlock() {
+        return minBlock;
+    }
+
+    public synchronized ExtremumMask getMaxChunk() {
+        return maxChunk;
+    }
+
+    public synchronized ExtremumMask getMinChunk() {
+        return minChunk;
     }
 }

@@ -1,5 +1,7 @@
 package slimefinder.properties;
 
+import java.io.IOException;
+
 public class MaskProperties extends AbstractProperties{
     
     private static final String SEED = "world-seed";
@@ -8,43 +10,49 @@ public class MaskProperties extends AbstractProperties{
     private static final String OFFSET = "y-offset";
     private static final String WEIGHT = "chunk-weight";
     
-    public boolean despawnSphere = true, exclusionSphere = true;
-    public int yOffset = 0, chunkWeight = 0;
-    public long worldSeed = 0;
+    public boolean despawnSphere, exclusionSphere;
+    public int yOffset, chunkWeight;
+    public long worldSeed;
 
     public MaskProperties() {
-        filename = "mask.properties";
-        defaults.setProperty(SEED, "" + worldSeed);
-        defaults.setProperty(DESPAWN, "" + despawnSphere);
-        defaults.setProperty(EXCLUSION, "" + exclusionSphere);
-        defaults.setProperty(OFFSET, "" + yOffset);
-        defaults.setProperty(WEIGHT, "" + chunkWeight);
     }
-    
+
+    public MaskProperties(String filename) throws IOException {
+        super(filename);
+    }
+
+    protected void setDefaults() {
+        defaultValues.put(SEED, "" + 0);
+        defaultValues.put(DESPAWN, "" + true);
+        defaultValues.put(EXCLUSION, "" + true);
+        defaultValues.put(OFFSET, "" + 0);
+        defaultValues.put(WEIGHT, "" + 0);
+    }
+
     @Override
     protected void parseProperties() throws NumberFormatException {
         try {
-            worldSeed = Long.parseLong(properties.getProperty(SEED));
+            worldSeed = Long.parseLong(this.getProperty(SEED));
         } catch (NumberFormatException ex) {
             parsingError(SEED);
         }
         
         try {
-            yOffset = Integer.parseInt(properties.getProperty(OFFSET));
+            yOffset = Integer.parseInt(this.getProperty(OFFSET));
         } catch (NumberFormatException ex) {
             parsingError(OFFSET);
         }
         
         try {
-            chunkWeight = Integer.parseInt(properties.getProperty(WEIGHT));
+            chunkWeight = Integer.parseInt(this.getProperty(WEIGHT));
         } catch (NumberFormatException ex) {
             parsingError(WEIGHT);
         }
         
-        despawnSphere = Boolean.parseBoolean(properties.getProperty(DESPAWN));
-        properties.setProperty(DESPAWN, "" + despawnSphere);
+        despawnSphere = Boolean.parseBoolean(this.getProperty(DESPAWN));
+        this.setProperty(DESPAWN, "" + despawnSphere);
         
-        exclusionSphere = Boolean.parseBoolean(properties.getProperty(EXCLUSION));
-        properties.setProperty(EXCLUSION, "" + exclusionSphere);
+        exclusionSphere = Boolean.parseBoolean(this.getProperty(EXCLUSION));
+        this.setProperty(EXCLUSION, "" + exclusionSphere);
     }
 }
