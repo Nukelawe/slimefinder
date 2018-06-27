@@ -10,28 +10,25 @@ import java.io.IOException;
 
 public class Slimefinder {
 
-    private CLI cli;
-
     public static void main(String[] args) {
         Slimefinder slimefinder = new Slimefinder(args);
         slimefinder.execute();
     }
 
     public Slimefinder(String[] args) {
-        cli = new CLI();
-        cli.parseArguments(args);
+        CLI.parseArguments(args);
     }
 
     public void execute() {
-        if (cli.help) {
-            cli.helpMessage();
+        if (CLI.help) {
+            CLI.helpMessage();
             return;
         }
 
         try {
             MaskProperties pMask = new MaskProperties("mask.properties");
-            if (cli.search) searchMasks(new SearchProperties("search.properties"), pMask);
-            if (cli.images) generateImages(new ImageProperties("image.properties"), pMask);
+            if (CLI.search) searchMasks(new SearchProperties("search.properties"), pMask);
+            if (CLI.images) generateImages(new ImageProperties("image.properties"), pMask);
         } catch (IOException ex) {
         }
     }
@@ -44,9 +41,9 @@ public class Slimefinder {
             return;
         }
         Search search = new Search(pSearch, pMask, logger);
-        cli.printSearchStartInfo(pSearch);
+        CLI.printSearchStartInfo(pSearch);
         runTask(search);
-        cli.printSearchEndInfo(search);
+        CLI.printSearchEndInfo(search);
     }
 
     private void generateImages(ImageProperties pImage, MaskProperties pMask) {
@@ -57,8 +54,8 @@ public class Slimefinder {
             d.run();
             time = System.nanoTime() - time;
             long count = Long.parseLong(d.getProgressInfo());
-            cli.info("Generated " + count + " image" + ((count == 1) ? "" : "s") + ".");
-            cli.info("Took " + DataLogger.formatTime(time) + ((count > 0) ? " (" + time / count / 1000000 +
+            CLI.info("Generated " + count + " image" + ((count == 1) ? "" : "s") + ".");
+            CLI.info("Took " + DataLogger.formatTime(time) + ((count > 0) ? " (" + time / count / 1000000 +
                     " milliseconds per image)." : "."));
 
         } catch (NumberFormatException ex) {
@@ -74,7 +71,7 @@ public class Slimefinder {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
             }
-            cli.refresh(task);
+            CLI.refresh(task);
         } while (thread.isAlive());
     }
 }

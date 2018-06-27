@@ -9,9 +9,9 @@ import slimefinder.properties.SearchProperties;
  */
 public class CLI {
 
-    boolean search, images, help;
+    static boolean search, images, help;
 
-    public void parseArguments(String[] args) {
+    public static void parseArguments(String[] args) {
         for (String arg : args) {
             switch (arg) {
                 case "-i":
@@ -35,18 +35,18 @@ public class CLI {
         }
     }
 
-    public void refresh(TrackableTask task) {
+    public static void refresh(TrackableTask task) {
         System.out.print("\r");
         System.out.print(task.getProgressInfo() + ",  Checked " + task.getProgress() + "/" + task.getMaxProgress() + " (" +
                 String.format("%1$-4.1f", ((double)task.getProgress() / task.getMaxProgress()) * 100) + "%)");
     }
 
-    public void printSearchStartInfo(SearchProperties pSearch) {
+    public static void printSearchStartInfo(SearchProperties pSearch) {
         info("Search criteria: " + pSearch.minChunkSize + " <= chunkSize <= " + pSearch.maxChunkSize +
                 " or " + pSearch.minBlockSize + " <= blockSize <= " + pSearch.maxBlockSize + ".");
     }
 
-    public void printSearchEndInfo(Search search) {
+    public static void printSearchEndInfo(Search search) {
         long count = search.getMaxProgress();
         long duration = search.getDuration();
         info("Checked " + count + " position" + ((count == 1) ? ". " : "s. "));
@@ -63,7 +63,7 @@ public class CLI {
     /**
      * Prints the help message
      */
-    public void helpMessage() {
+    public static void helpMessage() {
         info("-h");
         info("  Display this message");
         info("");

@@ -14,12 +14,10 @@ import org.junit.Test;
 public class CLITest {
     
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-    private CLI cli;
     
     @Before
     public void setUp() {
         System.setOut(new PrintStream(outContent));
-        cli = new CLI();
     }
 
     @After
@@ -30,47 +28,47 @@ public class CLITest {
     @Test
     public void helpArgumentIsDetected() {
         String[] arg = {"-h"};
-        cli.parseArguments(arg);
-        assertTrue(cli.help);
-        assertFalse(cli.images);
-        assertFalse(cli.search);
+        CLI.parseArguments(arg);
+        assertTrue(CLI.help);
+        assertFalse(CLI.images);
+        assertFalse(CLI.search);
 
     }
     
     @Test
     public void searchArgumentIsDetected() {
         String[] arg = {"-s"};
-        cli.parseArguments(arg);
-        assertFalse(cli.help);
-        assertFalse(cli.images);
-        assertTrue(cli.search);
+        CLI.parseArguments(arg);
+        assertFalse(CLI.help);
+        assertFalse(CLI.images);
+        assertTrue(CLI.search);
     }
     
     @Test
     public void imagesArgumentIsDetected() {
         String[] arg = {"-i"};
-        cli.parseArguments(arg);
-        assertFalse(cli.help);
-        assertTrue(cli.images);
-        assertFalse(cli.search);
+        CLI.parseArguments(arg);
+        assertFalse(CLI.help);
+        assertTrue(CLI.images);
+        assertFalse(CLI.search);
     }
     
     @Test
     public void invalidArgumentIsAnnounced() {
         String[] arg = {"invalidArgument"};
-        cli.parseArguments(arg);
+        CLI.parseArguments(arg);
         assertTrue(outContent.toString().contains("invalidArgument"));
-        assertTrue(cli.help);
-        assertFalse(cli.images);
-        assertFalse(cli.search);
+        assertTrue(CLI.help);
+        assertFalse(CLI.images);
+        assertFalse(CLI.search);
     }
     
     @Test
     public void noArgumentsGivesHelp() {
         String[] arg = {};
-        cli.parseArguments(arg);
-        assertTrue(cli.help);
-        assertFalse(cli.images);
-        assertFalse(cli.search);
+        CLI.parseArguments(arg);
+        assertTrue(CLI.help);
+        assertFalse(CLI.images);
+        assertFalse(CLI.search);
     }
 }
