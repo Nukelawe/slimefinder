@@ -1,6 +1,7 @@
-package slimefinder.properties;
+package slimefinder.io.properties;
 
-import slimefinder.Mask;
+import slimefinder.core.Mask;
+import slimefinder.io.CLI;
 import slimefinder.util.Position;
 
 import java.io.IOException;
@@ -28,8 +29,8 @@ public class SearchProperties extends AbstractProperties {
     public SearchProperties() {
     }
 
-    public SearchProperties(String filename) throws IOException {
-        super(filename);
+    public SearchProperties(String filename, CLI cli) throws IOException {
+        super(filename, cli);
     }
 
     protected void setDefaults() {

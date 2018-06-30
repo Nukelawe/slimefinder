@@ -18,7 +18,7 @@ public final class Position {
      * @throws NumberFormatException if parsing the string fails.
      */
     public static Position parsePos(String parseText) throws NumberFormatException {
-        String message = "Failed to parse position from string: '" + parseText + "'\nExpected format 'xBlock,zBlock' or 'xChunk:xIn,zChunk:zIn'.";
+        String message = "Failed to parse position from string: '" + parseText + "', expected format 'xBlock,zBlock' or 'xChunk:xIn,zChunk:zIn'.";
         parseText = parseText.trim();
         if (parseText == null) {
             throw new NumberFormatException(message);
@@ -49,6 +49,10 @@ public final class Position {
 
     public Position(int x, int z) {
         setPos(x, z);
+    }
+
+    public Position(Position pChunk, Position pIn) {
+        setPos(pChunk.x * 16 + pIn.x, pChunk.z * 16 + pIn.z);
     }
 
     /**

@@ -1,4 +1,6 @@
-package slimefinder.properties;
+package slimefinder.io.properties;
+
+import slimefinder.io.CLI;
 
 import java.io.IOException;
 
@@ -17,8 +19,8 @@ public class MaskProperties extends AbstractProperties{
     public MaskProperties() {
     }
 
-    public MaskProperties(String filename) throws IOException {
-        super(filename);
+    public MaskProperties(String filename, CLI cli) throws IOException {
+        super(filename, cli);
     }
 
     protected void setDefaults() {

@@ -3,16 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package slimefinder.search;
+package slimefinder.core.search;
 
-import slimefinder.Mask;
-import org.junit.After;
-import org.junit.AfterClass;
+import slimefinder.core.Mask;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import slimefinder.properties.MaskProperties;
+
+import slimefinder.io.properties.MaskProperties;
 import slimefinder.util.Direction;
 import slimefinder.util.Position;
 
@@ -22,32 +20,25 @@ import slimefinder.util.Position;
  */
 public class MaskTest {
     
-    private MaskProperties p;
+    private MaskProperties pMask;
     
     public MaskTest() {
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
     @Before
     public void setUp() {
-        p = new MaskProperties();
-    }
-    
-    @After
-    public void tearDown() {
+        pMask = new MaskProperties();
+        pMask.worldSeed = 0;
+        pMask.despawnSphere = true;
+        pMask.exclusionSphere = true;
+        pMask.chunkWeight = 0;
+        pMask.yOffset = 0;
     }
 
     @Test
     public void chunkAndBlockConstructorsGiveSameMasks() {
-        Mask mChunk = new Mask(p, -1, 0, 1, 2);
-        Mask mBlock = new Mask(p, -15, 2);
+        Mask mChunk = new Mask(pMask, -1, 0, 1, 2);
+        Mask mBlock = new Mask(pMask, -15, 2);
         
         // Chunk positions
         assertEquals(mBlock.posChunk, mChunk.posChunk);
@@ -67,7 +58,7 @@ public class MaskTest {
     
     @Test
     public void blockPosConstructorInitializesPositionsCorrectly() {
-        Mask m = new Mask(p, -15, 2);
+        Mask m = new Mask(pMask, -15, 2);
         
         assertEquals(new Position(-1, 0), m.posChunk);
         assertEquals(new Position(1, 2), m.posIn);
@@ -76,7 +67,7 @@ public class MaskTest {
     
     @Test
     public void orthogonalChunkMovementWorks() {
-        Mask m = new Mask(p, 0, 0);
+        Mask m = new Mask(pMask, 0, 0);
         m.moveByChunk(Direction.SOUTH);
         m.moveByChunk(Direction.EAST);
         m.moveByChunk(Direction.NORTH);
@@ -88,25 +79,50 @@ public class MaskTest {
     
     @Test
     public void arbitraryMovementWorks() {
-        Mask m = new Mask(p, 0, 0);
+        Mask m = new Mask(pMask, 0, 0);
         m.moveTo(1, 2, 3, 4);
         assertEquals(new Position(19, 36), m.posBlock);
     }
     
     @Test
     public void surfaceAreaIsCorrect() {
-        p.yOffset = 0;
-        p.despawnSphere = true;
-        p.exclusionSphere = true;
-        Mask m = new Mask(p, 0, 0, 0, 0);
+        Mask m = new Mask(pMask, 0, 0, 0, 0);
         assertEquals(49640, m.getBlockSurfaceArea());
         assertEquals(222, m.getChunkSurfaceArea());
     }
-        
+
     @Test
-    public void isSlimeChunkTest() {
-        long seed = 0;
-        assertTrue(Mask.isSlimeChunk(seed, 1,-3));
-        assertFalse(Mask.isSlimeChunk(seed, 10,-6));
+    public void steppingAndJumpingMovementHaveSameEffects() {
+        Mask mStep = new Mask(pMask, 0, 0, 0, 0);
+        Mask mJump = new Mask(pMask, 0, 0, 0, 0);
+
+        Direction stepPath[] = {
+            Direction.EAST,
+            Direction.EAST,
+            Direction.SOUTH,
+            Direction.SOUTH,
+            Direction.SOUTH,
+            Direction.SOUTH,
+            Direction.NORTH,
+            Direction.SOUTH,
+            Direction.WEST,
+            Direction.WEST,
+            Direction.EAST
+        };
+        for (Direction direction : stepPath) {
+            mStep.moveByChunk(direction);
+        }
+        mJump.moveTo(1,4,0,0);
+        assertTrue(
+            mStep.getBlockSize() + "==" + mJump.getBlockSize(),
+            mStep.getBlockSize() == mJump.getBlockSize());
+        for (int xChunk = -Mask.R_CHUNK; xChunk <= Mask.R_CHUNK; xChunk++) {
+            for (int zChunk = -Mask.R_CHUNK; zChunk <= Mask.R_CHUNK; zChunk++) {
+                assertTrue(
+                    mStep.isSlimeChunk(xChunk, zChunk) + "==" + mJump.isSlimeChunk(xChunk, zChunk),
+                    mStep.isSlimeChunk(xChunk, zChunk) == mJump.isSlimeChunk(xChunk, zChunk)
+                );
+            }
+        }
     }
 }
