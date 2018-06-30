@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package slimefinder.search;
+package slimefinder.core.search;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+
 import slimefinder.util.Position;
 
 /**
@@ -56,6 +57,12 @@ public class SearchPathTest {
             path.step();
         }
         assertFalse(path.step());
+    }
+
+    @Test
+    public void pathLengthIsCorrect() {
+        SearchPath path = new SearchPath(new Position(0, 0), 0, 3);
+        assertEquals(9, path.getPathLength());
     }
     
     @Test
@@ -118,5 +125,22 @@ public class SearchPathTest {
         }
         
         assertEquals(7L, path.getProgress());
+    }
+
+    @Test
+    public void pathWorksIdenticallyAfterReset() {
+        SearchPath path1 = new SearchPath(new Position(0, 0), 0, 3);
+        SearchPath path2 = new SearchPath(new Position(0, 0), 0, 3);
+        for (int i = 0; i < 2; i++) {
+            path1.step();
+            path2.step();
+        }
+        for (int i = 0; i < 10; i++) {
+            path1.step();
+        }
+
+        assertEquals(path2.getProgress(), path1.getProgress());
+        assertEquals(path2.step(), path1.step());
+        assertEquals(path2.getPosition(), path2.getPosition());
     }
 }

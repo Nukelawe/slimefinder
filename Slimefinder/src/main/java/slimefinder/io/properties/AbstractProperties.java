@@ -1,4 +1,4 @@
-package slimefinder.properties;
+package slimefinder.io.properties;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,20 +8,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
 
-import slimefinder.cli.CLI;
+import slimefinder.io.CLI;
 
 public abstract class AbstractProperties extends Properties {
 
     protected String filename;
     protected HashMap<String, String> defaultValues;
+    protected CLI cli;
 
     /**
      * Constructs an AbstractProperties object by reading reading a propertiy file.
      * @param filename
      * @throws IOException
      */
-    public AbstractProperties(String filename) throws IOException {
+    public AbstractProperties(String filename, CLI cli) throws IOException {
         this.filename = filename;
+        this.cli = cli;
         defaultValues = new HashMap<>();
         setDefaults();
         loadProperties();
@@ -49,18 +51,18 @@ public abstract class AbstractProperties extends Properties {
             this.load(in);
             in.close();
         } catch (IOException ex) {
-            CLI.error("Could not load properties from file '" + filename + "'");
+            cli.error("Could not load properties from file '" + filename + "'");
             return;
         }
 
-        CLI.info("Successfully loaded properties from file: '" + filename + "'");
+        cli.info("Successfully loaded properties from file: '" + filename + "'");
     }
     
     void saveProperties(OutputStream out) throws IOException {
         try {
             this.store(out, null);
         } catch (IOException ex) {
-            CLI.error("Could not save '" + filename + "'");
+            cli.error("Could not save '" + filename + "'");
             throw ex;
         } finally {
             out.close();
@@ -78,7 +80,7 @@ public abstract class AbstractProperties extends Properties {
             String key = iterator.next().toString();
             if (!defaultValues.containsKey(key)) {
                 removed = true;
-                CLI.warning("Unused property, '" + key + "' in '" + filename + "'");
+                cli.warning("Unused property, '" + key + "' in '" + filename + "'");
                 iterator.remove();
             }
         }
@@ -95,7 +97,7 @@ public abstract class AbstractProperties extends Properties {
             if (!this.containsKey(key)) {
                 missing = true;
                 String value = defaultValues.get(key);
-                CLI.warning(key + " not specified. Using default (" + value + ")");
+                cli.warning(key + " not specified. Using default (" + value + ")");
                 this.setProperty((String) key, value);
             }
         }
@@ -106,7 +108,7 @@ public abstract class AbstractProperties extends Properties {
     protected void parsingError(String property) {
         String defString = defaultValues.get(property);
         this.setProperty(property, defString);
-        CLI.warning("Parsing " + property + " failed. Using default (" + defString + ")");
+        cli.warning("Parsing " + property + " failed. Using default (" + defString + ")");
     }
     
     protected abstract void parseProperties();

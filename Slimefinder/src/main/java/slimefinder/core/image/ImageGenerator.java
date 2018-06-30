@@ -1,6 +1,8 @@
-package slimefinder;
+package slimefinder.core.image;
 
-import slimefinder.cli.CLI;
+import slimefinder.core.Mask;
+import slimefinder.core.TrackableTask;
+import slimefinder.io.CLI;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -11,9 +13,12 @@ import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
-import slimefinder.cli.TrackableTask;
-import slimefinder.properties.*;
+import slimefinder.io.properties.*;
 import slimefinder.util.Position;
+
+
+import static slimefinder.util.FormatHelper.*;
+import static slimefinder.io.CLI.LN;
 
 public class ImageGenerator extends TrackableTask {
 
@@ -34,10 +39,12 @@ public class ImageGenerator extends TrackableTask {
     private final BufferedImage b;
     private Scanner scanner;
     private long bytesRead;
-    private long successCount;
+    private long imagesGenerated;
     private File inputFile;
+    private CLI cli;
 
-    public ImageGenerator(ImageProperties imageProperties, MaskProperties slimeProperties) {
+    public ImageGenerator(ImageProperties imageProperties, MaskProperties slimeProperties, CLI cli) {
+        this.cli = cli;
         wChunk = 16 * imageProperties.wBlock + imageProperties.wGrid;
         wImage = wChunk * (2 * Mask.R_CHUNK + 1) - imageProperties.wGrid;
         this.pSlime = slimeProperties;
@@ -47,12 +54,7 @@ public class ImageGenerator extends TrackableTask {
     }
 
     /**
-     * Draws images of positions specified in the input file and saves them to a
-     * .png-files.
-     *
-     * @return number of images generated
-     * @throws NumberFormatException
-     * @throws IOException
+     * Draws images of positions specified in the input file and saves them to .png-files.
      */
     @Override
     public void run() {
@@ -61,8 +63,6 @@ public class ImageGenerator extends TrackableTask {
 
         try {
             createScanner();
-
-            CLI.info("Generating images...");
             String line;
             while (scanner.hasNextLine()) {
                 line = scanner.nextLine();
@@ -72,7 +72,7 @@ public class ImageGenerator extends TrackableTask {
                 try {
                     pBlock = Position.parsePos(line.split("[;\\s]")[0]);
                 } catch (NumberFormatException e) {
-                    CLI.warning(e.getMessage());
+                    cli.warning(e.getMessage());
                     continue;
                 }
                 if (m == null) {
@@ -81,7 +81,7 @@ public class ImageGenerator extends TrackableTask {
                     m.moveTo(Math.floorDiv(pBlock.x, 16), Math.floorDiv(pBlock.z, 16), pBlock.x & 15, pBlock.z & 15);
                 }
                 draw(m);
-                successCount++;
+                imagesGenerated++;
             }
         } catch (IOException e) {
         } finally {
@@ -94,7 +94,7 @@ public class ImageGenerator extends TrackableTask {
         try {
             scanner = new Scanner(new File(pImage.inputFile));
         } catch (IOException ex) {
-            CLI.error("Could not open file: '" + pImage.inputFile + "'");
+            cli.error("Could not open file: '" + pImage.inputFile + "'");
             throw ex;
         }
     }
@@ -171,15 +171,16 @@ public class ImageGenerator extends TrackableTask {
             }
             ImageIO.write(b, "png", outputFile);
         } catch (IOException e) {
-            CLI.error("Failed to save image '" + filename + "'");
+            cli.error("Failed to save image '" + filename + "'");
             throw e;
         }
     }
 
     private String getFilename(Mask m) {
-        return "(" + m.posBlock.x + "," + m.posBlock.z + ")_"
-                + m.getChunkSize() + "c" + m.getChunkSurfaceArea() + "_"
-                + m.getBlockSize() + "b" + m.getBlockSurfaceArea() + ".png";
+        return
+            m.posBlock.x + "x_" + m.posBlock.z + "z_"
+            + m.getChunkSize() + "c" + m.getChunkSurfaceArea() + "_"
+            + m.getBlockSize() + "b" + m.getBlockSurfaceArea() + ".png";
     }
 
     private int scaleRGB(int rgb, float transparency[]) {
@@ -204,18 +205,50 @@ public class ImageGenerator extends TrackableTask {
         return false;
     }
 
-    @Override
-    public synchronized long getProgress() {
+    public synchronized long getBytesRead() {
         return bytesRead;
     }
 
-    @Override
-    public synchronized long getMaxProgress() {
+    public synchronized long getTotalBytes() {
         return inputFile.length();
     }
 
-    @Override
-    public synchronized String getProgressInfo() {
-        return "" + successCount;
+    public synchronized long imagesGenerated() {
+        return imagesGenerated;
+    }
+
+    /**
+     * Generating images of masks listed in file: 'results.csv'"
+     * Saving generated images to /home/users/nukelawe/slimefinder/images/
+     */
+    public String startInfo() {
+        return
+            "Generating images of masks listed in file: '" + pImage.inputFile + "'" + LN +
+            "Saving generated images to: '" + pImage.outputDir + "'";
+    }
+
+
+    /**
+     * [  82.1% ]  96 images generated, 00:00:09 elapsed, 43:12:55 remaining
+     */
+    public synchronized String progressInfo() {
+        long bytesRead = getBytesRead();
+        long totalBytes = getTotalBytes();
+        long time = getDuration();
+        float progress = (float) bytesRead / totalBytes;
+        if (isFinished) progress = 1f;
+        return
+            "[ " + String.format("%1$5.1f", progress * 100) + "% ]  " +
+            imagesGenerated() + " images generated, " +
+            formatTime(time) + " elapsed, " +
+            formatTime((long) (time / progress - time)) + " remaining";
+    }
+
+    /**
+     * 459 milliseconds per image
+     */
+    public String endInfo() {
+        if (imagesGenerated() <= 0) return "";
+        return getDuration() / imagesGenerated() / 1000000 + " milliseconds per image";
     }
 }

@@ -1,4 +1,6 @@
-package slimefinder.properties;
+package slimefinder.io.properties;
+
+import slimefinder.io.CLI;
 
 import java.io.IOException;
 
@@ -20,8 +22,8 @@ public class ImageProperties extends AbstractProperties {
     public ImageProperties() {
     }
 
-    public ImageProperties(String filename) throws IOException {
-        super(filename);
+    public ImageProperties(String filename, CLI cli) throws IOException {
+        super(filename, cli);
     }
 
     protected void setDefaults() {
