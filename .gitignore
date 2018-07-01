@@ -9,6 +9,9 @@
 /Slimefinder/.project
 /Slimefinder/.settings
 
+# Idea settigns
+.idea
+
 # Eclipse compiled project, we use mavens default 'target' directory
 /Slimefinder/bin
 
