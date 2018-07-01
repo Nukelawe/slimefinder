@@ -38,25 +38,24 @@ public class SearchPath {
      * The direction of the next step
      */
     private Direction dir;
-    
+
+    private boolean inProgress;
+
     private Position position;
 
     public SearchPath(Position centerPos, int minWidth, int maxWidth) {
         this.maxWidth = Math.max(0, maxWidth);
         this.minWidth = Math.max(0, minWidth);
         this.centerPos = centerPos;
-        progress = 0;
-    }
-
-    private void reset() {
-        progress = 0;
-        position = null;
+        position = Position.origin();
+        init();
     }
 
     /**
-     * Initializes the position to the start position of the path
+     * calculates the starting position and prepares path for stepping
      */
-    private void initPosition() {
+    private void init() {
+        progress = 0;
         steps = 0;
         int dx, dz;
         if (minWidth <= 0) {
@@ -79,39 +78,8 @@ public class SearchPath {
             turns = 1;
         }
         
-        this.position = new Position(centerPos.x + dx, centerPos.z + dz);
-    }
-        
-    
-    /**
-     * Moves the position by 1 step along a spiral path around the starting
-     * position. The first step initializes the position.
-     * 
-     * @return false when moving outside the search region, true otherwise.
-     */
-    public boolean step() {
-        ++progress;
-        if (position == null) {
-            initPosition();
-            return maxWidth > minWidth;
-        }
-        
-        position.move(1, dir);
-        ++steps;
-
-        if (edge >= maxWidth && steps >= edge) {
-            reset();
-            return false;
-        }
-        if (steps >= edge) {
-            steps = 0;
-            turn();
-            if (turns > 1) {
-                turns = 0;
-                ++edge;
-            }
-        }
-        return true;
+        position.setPos(centerPos.x + dx, centerPos.z + dz);
+        inProgress = false;
     }
 
     /**
@@ -131,9 +99,39 @@ public class SearchPath {
     }
 
     /**
+     * Moves the position by 1 step along a spiral path around the starting
+     * position. The first step initializes the position.
+     * 
+     * @return false when moving outside the search region, true otherwise.
+     */
+    public boolean step() {
+        ++progress;
+        if (!inProgress) {
+            inProgress = true;
+            return maxWidth > minWidth;
+        }
+        
+        position.move(1, dir);
+        ++steps;
+
+        if (edge >= maxWidth && steps >= edge) {
+            init();
+        } else if (steps >= edge) {
+            steps = 0;
+            turn();
+            if (turns > 1) {
+                turns = 0;
+                ++edge;
+            }
+        }
+        return inProgress;
+    }
+
+    /**
      * @return current position on the path
      */
     public Position getPosition() {
+        if (!inProgress) return null;
         return position;
     }
     
@@ -148,6 +146,9 @@ public class SearchPath {
      * @return total number of distinct positions on the path
      */
     public long getPathLength() {
-        return Math.max(maxWidth * maxWidth - minWidth * minWidth, 0);
+        return Math.max(
+            (long) maxWidth * (long) maxWidth - (long) minWidth * (long) minWidth,
+            0
+        );
     }
 }
