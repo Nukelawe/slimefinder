@@ -6,7 +6,6 @@ import slimefinder.core.TrackableTask;
 import slimefinder.io.properties.MaskProperties;
 import slimefinder.io.properties.SearchProperties;
 import static slimefinder.util.FormatHelper.*;
-import static slimefinder.io.CLI.LN;
 
 import java.io.IOException;
 
