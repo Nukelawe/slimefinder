@@ -18,7 +18,7 @@ import slimefinder.util.Position;
 
 
 import static slimefinder.util.FormatHelper.*;
-import static slimefinder.io.CLI.LN;
+import static slimefinder.util.FormatHelper.LN;
 
 public class ImageGenerator extends TrackableTask {
 

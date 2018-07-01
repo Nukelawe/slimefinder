@@ -3,10 +3,11 @@ package slimefinder.io;
 import slimefinder.core.Mask;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
 
 import slimefinder.io.properties.SearchProperties;
 import slimefinder.util.FormatHelper;
+
+import static slimefinder.util.FormatHelper.LN;
 
 public class DataLogger implements IDataLogger {
     
@@ -40,7 +41,7 @@ public class DataLogger implements IDataLogger {
 
     private void write(String str) throws IOException {
         try {
-            w.write(str + String.format("%n"));
+            w.write(str + LN);
         } catch (IOException ex) {
             cli.error("Could not write on the output file");
             throw ex;
