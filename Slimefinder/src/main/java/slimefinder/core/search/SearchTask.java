@@ -11,7 +11,7 @@ import java.io.IOException;
 
 import slimefinder.io.IDataLogger;
 
-public class Search extends TrackableTask {
+public class SearchTask extends TrackableTask {
 
     private ExtremumMask maxBlock, minBlock, maxChunk, minChunk;
     private final MaskProperties pMask;
@@ -23,7 +23,11 @@ public class Search extends TrackableTask {
     private int progress;
     private boolean interrupted;
 
-    public Search(SearchProperties searchProperties, MaskProperties maskProperties, IDataLogger logger) {
+    public SearchTask(
+        SearchProperties searchProperties,
+        MaskProperties maskProperties,
+        IDataLogger logger
+    ) {
         this.pSearch = searchProperties;
         this.pMask = maskProperties;
         this.logger = logger;
