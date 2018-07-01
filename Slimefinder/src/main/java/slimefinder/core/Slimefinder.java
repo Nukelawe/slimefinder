@@ -1,15 +1,17 @@
 package slimefinder.core;
 
-import slimefinder.core.image.ImageGenerator;
-import slimefinder.core.search.Search;
+import java.io.IOException;
+import java.util.Random;
+
+import slimefinder.core.image.ImageTask;
+import slimefinder.core.search.SearchTask;
 import slimefinder.io.CLI;
 import slimefinder.io.DataLogger;
 import slimefinder.io.properties.ImageProperties;
 import slimefinder.io.properties.MaskProperties;
 import slimefinder.io.properties.SearchProperties;
 
-import java.io.IOException;
-import java.util.Random;
+import static slimefinder.util.FormatHelper.LN;
 
 public class Slimefinder {
 
@@ -63,15 +65,17 @@ public class Slimefinder {
             if (search)  {
                 SearchProperties pSearch = new SearchProperties("search.properties", cli);
                 DataLogger logger = new DataLogger(pSearch, cli);
-                Search searchMasks = new Search(pSearch, pMask, logger);
+                SearchTask searchMasks = new SearchTask(pSearch, pMask, logger);
                 runTask(searchMasks);
             }
             if (images) {
                 ImageProperties pImage = new ImageProperties("image.properties", cli);
-                ImageGenerator generateImgs = new ImageGenerator(pImage, pMask, cli);
+                ImageTask generateImgs = new ImageTask(pImage, pMask, cli);
                 runTask(generateImgs);
             }
         } catch (IOException ex) {
+            cli.info("");
+            cli.flush();
         }
     }
 
