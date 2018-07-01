@@ -5,10 +5,5 @@ public abstract class ExtremumMask extends Mask {
         super(m);
     }
 
-    public void moveTo(Mask m) {
-        super.moveTo(m);
-    }
-
-
     public abstract boolean needsUpdate(Mask mask);
 }
