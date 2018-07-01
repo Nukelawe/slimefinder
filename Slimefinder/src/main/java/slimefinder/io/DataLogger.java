@@ -1,9 +1,9 @@
 package slimefinder.io;
 
-import slimefinder.core.Mask;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import slimefinder.core.Mask;
 import slimefinder.io.properties.SearchProperties;
 import slimefinder.util.FormatHelper;
 
