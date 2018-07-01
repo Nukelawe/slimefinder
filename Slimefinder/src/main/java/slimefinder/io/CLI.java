@@ -2,6 +2,9 @@ package slimefinder.io;
 
 import slimefinder.core.TrackableTask;
 
+import static slimefinder.util.FormatHelper.LN;
+import static slimefinder.util.FormatHelper.CR;
+
 /**
  * This class does all the reading and writing on the command line.
  */
@@ -9,14 +12,13 @@ public class CLI {
 
     private StringBuffer printBuffer;
 
-    /**
-     * System-independent newline character
-     */
-    public static final String LN = String.format("%n");
-
-    public static final String CR = "\r";
-
     private boolean allowRewrite;
+
+    /**
+     * Width of the previous line that was printed to stdout.
+     * This is used to make sure the line is completely rewritten by an update.
+     */
+    private int lineWidth;
 
     public CLI() {
         printBuffer = new StringBuffer();
@@ -32,9 +34,11 @@ public class CLI {
     }
 
     public synchronized void printProgress(TrackableTask task) {
-        appendBuffer(task.progressInfo());
+        String progressInfo = task.progressInfo();
+        appendBuffer(progressInfo);
         flush(allowRewrite);
         allowRewrite = true;
+        lineWidth = progressInfo.length();
     }
 
     public synchronized void printStartInfo(TrackableTask task) {
@@ -45,9 +49,9 @@ public class CLI {
 
     public synchronized void printEndInfo(TrackableTask task) {
         printProgress(task);
-        appendBuffer(task.endInfo() + LN);
+        appendBuffer(task.endInfo());
+        appendBuffer("");
         flush();
-        allowRewrite = false;
     }
 
     /**
@@ -80,6 +84,10 @@ public class CLI {
     }
 
     private void appendBuffer(String line) {
-        printBuffer.append((printBuffer.length() > 0 ? LN : "") + line);
+        printBuffer.append(printBuffer.length() > 0 ? LN : "");
+        StringBuffer extendedLine = new StringBuffer(line);
+        while (extendedLine.length() < lineWidth) extendedLine.append(" ");
+        printBuffer.append(extendedLine);
+        lineWidth = 0;
     }
 }

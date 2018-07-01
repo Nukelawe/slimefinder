@@ -1,16 +1,16 @@
 package slimefinder.io;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import slimefinder.core.TrackableTask;
 
-import static org.junit.Assert.*;
-import static slimefinder.io.CLI.LN;
-import static slimefinder.io.CLI.CR;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import org.junit.Assert;
+import static slimefinder.util.FormatHelper.LN;
+import static slimefinder.util.FormatHelper.CR;
 
 public class CLITest {
 
@@ -18,6 +18,31 @@ public class CLITest {
     private TrackableTask task;
 
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+
+    private String showSpecialCharacters(String string) {
+        StringBuffer out = new StringBuffer();
+        for (int i = 0; i < string.length(); i++) {
+            char c = string.charAt(i);
+            switch (c) {
+                case '\n':
+                    out.append("\\n");
+                    break;
+                case '\r':
+                    out.append("\\r");
+                    break;
+                case ' ':
+                    out.append('.');
+                    break;
+                default:
+                    out.append(c);
+            }
+        }
+        return out.toString();
+    }
+
+    private void assertEquals(String expected, String actual) {
+        Assert.assertEquals(showSpecialCharacters(expected), showSpecialCharacters(actual));
+    }
 
     @Before
     public void setUpStreams() {
@@ -94,7 +119,7 @@ public class CLITest {
         cli.info("info");
         cli.printEndInfo(task);
 
-        assertEquals(LN + "info" + LN + "progressed" + LN + "ended" + LN, outContent.toString());
+        assertEquals(LN + "info" + LN + "progressed" + LN + "ended     " + LN, outContent.toString());
     }
 
     @Test
@@ -122,7 +147,15 @@ public class CLITest {
         cli.info("info");
         cli.printProgress(task);
 
-        assertEquals(LN + "progressed" + CR + "info" + LN + "progressed", outContent.toString());
+        assertEquals(LN + "progressed" + CR + "info      " + LN + "progressed", outContent.toString());
+    }
+
+    @Test
+    public void endInfoAfterProgressUpdate() {
+        cli.printProgress(task);
+        cli.printEndInfo(task);
+
+        assertEquals(LN + "progressed" + CR + "progressed" + LN + "ended     " + LN, outContent.toString());
     }
 
 }
