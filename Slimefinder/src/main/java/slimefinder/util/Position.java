@@ -56,19 +56,17 @@ public final class Position {
     }
 
     /**
-     * Moves the position n steps in the direction specified
-     *
-     * @param n - amount of movement
+     * Moves the position count steps in the direction specified
+     * @param count - amount of movement
      * @param d - direction of movement
      */
-    public void move(int n, Direction d) {
-        x += n * d.x;
-        z += n * d.z;
+    public void move(int count, Direction d) {
+        x += count * d.x;
+        z += count * d.z;
     }
 
     /**
      * Sets the coordinates of the position object
-     *
      * @param x
      * @param z
      */
