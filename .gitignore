@@ -3,3 +3,14 @@
 /Slimefinder/images/
 /Slimefinder/*.properties
 /Slimefinder/*.csv
+
+# Eclipse dotfiles
+/Slimefinder/.classpath
+/Slimefinder/.project
+/Slimefinder/.settings
+
+# Eclipse compiled project, we use mavens default 'target' directory
+/Slimefinder/bin
+
+# Ignore everything but 
+!/Slimefinder/testcases/**/*.properties
