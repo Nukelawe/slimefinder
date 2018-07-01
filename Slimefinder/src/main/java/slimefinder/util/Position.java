@@ -18,33 +18,29 @@ public final class Position {
      * @throws NumberFormatException if parsing the string fails.
      */
     public static Position parsePos(String parseText) throws NumberFormatException {
-        String message = "Failed to parse position from string: '" + parseText + "', expected format 'xBlock,zBlock' or 'xChunk:xIn,zChunk:zIn'.";
+        NumberFormatException exception = new NumberFormatException(
+            "Failed to parse position from string: '" + parseText +
+            "'. Expected format 'xBlock,zBlock' or 'xChunk:xIn,zChunk:zIn'"
+        );
+        if (parseText == null) throw exception;
         parseText = parseText.trim();
-        if (parseText == null) {
-            throw new NumberFormatException(message);
-        }
-        if (parseText.equals("")) {
-            throw new NumberFormatException(message);
-        }
+        if (parseText.equals("")) throw exception;
         String[] coords = parseText.split(",", 2);
-        if (coords.length != 2) {
-            throw new NumberFormatException(message);
-        }
-        String[] xCoord = coords[0].split(":", 2);
-        String[] zCoord = coords[1].split(":", 2);
+        if (coords.length != 2) throw exception;
+        String[] x = coords[0].split(":", -1);
+        String[] z = coords[1].split(":", -1);
         try {
-            if (xCoord.length == 1 && zCoord.length == 1) {
-                return new Position(Integer.parseInt(xCoord[0]), Integer.parseInt(zCoord[0]));
-            } else if (xCoord.length == 2 && zCoord.length == 2) {
+            if (x.length == 1 && z.length == 1) {
+                return new Position(Integer.parseInt(x[0]), Integer.parseInt(z[0]));
+            } else if (x.length == 2 && z.length == 2) {
                 return new Position(
-                        Integer.parseInt(xCoord[0]) * 16 + Integer.parseInt(xCoord[1]),
-                        Integer.parseInt(zCoord[0]) * 16 + Integer.parseInt(zCoord[1]));
-            } else {
-                throw new NumberFormatException(message);
+                        Integer.parseInt(x[0]) * 16 + Integer.parseInt(x[1]),
+                        Integer.parseInt(z[0]) * 16 + Integer.parseInt(z[1])
+                );
             }
         } catch (NumberFormatException e) {
-            throw new NumberFormatException(message + e.getMessage());
         }
+        throw exception;
     }
 
     public Position(int x, int z) {
