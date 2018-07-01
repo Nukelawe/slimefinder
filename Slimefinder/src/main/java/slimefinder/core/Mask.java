@@ -88,7 +88,15 @@ public class Mask {
 
     /**
      * Sets the position of the mask in block coordinates.
-     *
+     * @param xBlock
+     * @param zBlock
+     */
+    public void moveTo(int xBlock, int zBlock) {
+        moveTo(Math.floorDiv(xBlock, 16), Math.floorDiv(zBlock, 16), xBlock & 15, zBlock & 15);
+    }
+
+    /**
+     * Sets the position of the mask in chunk coordinates.
      * @param xChunk
      * @param zChunk
      * @param xIn
