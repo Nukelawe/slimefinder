@@ -29,8 +29,8 @@ public class SearchProperties extends AbstractProperties {
     public SearchProperties() {
     }
 
-    public SearchProperties(String filename, CLI cli) throws IOException {
-        super(filename, cli);
+    public SearchProperties(String filename) throws IOException {
+        super(filename);
     }
 
     protected void setDefaults() {

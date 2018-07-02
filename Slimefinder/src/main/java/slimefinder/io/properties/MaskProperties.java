@@ -19,8 +19,8 @@ public class MaskProperties extends AbstractProperties{
     public MaskProperties() {
     }
 
-    public MaskProperties(String filename, CLI cli) throws IOException {
-        super(filename, cli);
+    public MaskProperties(String filename) throws IOException {
+        super(filename);
     }
 
     protected void setDefaults() {

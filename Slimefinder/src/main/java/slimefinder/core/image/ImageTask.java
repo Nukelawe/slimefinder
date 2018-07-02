@@ -37,10 +37,9 @@ public class ImageTask extends TrackableTask {
 
     public ImageTask(
         ImageProperties imageProperties,
-        MaskProperties slimeProperties,
-        CLI cli
+        MaskProperties slimeProperties
     ) throws FileNotFoundException {
-        this.cli = cli;
+        this.cli = CLI.getCLI();
         pSlime = slimeProperties;
         pImage = imageProperties;
         inputFile = new File(pImage.inputFile);

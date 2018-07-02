@@ -1,32 +1,34 @@
 package slimefinder.io.properties;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Properties;
+import java.io.*;
+import java.util.*;
 
 import slimefinder.io.CLI;
 
 public abstract class AbstractProperties extends Properties {
 
-    protected String filename;
     protected HashMap<String, String> defaultValues;
-    protected CLI cli;
+    private CLI cli;
+    private InputStream input;
+    private OutputStream output;
+    private String filename;
+
+    /**
+     * Constructs an AbstractProperties object by reading reading a propertiy file. For testing.
+     */
+    public AbstractProperties(InputStream input, OutputStream output, String filename) throws IOException {
+        this.input = input;
+        this.output = output;
+        setUp(filename);
+    }
 
     /**
      * Constructs an AbstractProperties object by reading reading a propertiy file.
      * @param filename
      * @throws IOException
      */
-    public AbstractProperties(String filename, CLI cli) throws IOException {
-        this.filename = filename;
-        this.cli = cli;
-        defaultValues = new HashMap<>();
-        setDefaults();
-        loadProperties();
+    public AbstractProperties(String filename) throws IOException {
+        setUp(filename);
     }
 
     /**
@@ -35,45 +37,49 @@ public abstract class AbstractProperties extends Properties {
     public AbstractProperties() {
     }
     
-    private void loadProperties() throws IOException {
+    private void setUp(String filename) throws IOException{
+        this.filename = filename;
+        this.cli = CLI.getCLI();
+        defaultValues = new HashMap<>();
+        setDefaults();
         readFiles(filename);
         removeUnusedProperties();
         addMissingProperties();
         parseProperties();
-        saveProperties(new FileOutputStream(filename));
+        saveProperties(filename);
     }
 
     protected abstract void setDefaults();
     
-    void readFiles(String filename) throws IOException {
+    protected void readFiles(String filename) throws IOException {
         try {
-            FileInputStream in = new FileInputStream(filename);
-            this.load(in);
-            in.close();
-        } catch (IOException ex) {
-            cli.error("Could not load properties from file '" + filename + "'");
+            if (input == null) input = new FileInputStream(filename);
+        } catch (FileNotFoundException e) {
+            cli.error("Could not find file '" + filename + "'");
+            return;
+        } catch (SecurityException e) {
+            cli.error("Could not open file '" + filename + "'. Insufficient read permissions");
             return;
         }
-
-        cli.info("Successfully loaded properties from file: '" + filename + "'");
-    }
-    
-    void saveProperties(OutputStream out) throws IOException {
         try {
-            this.store(out, null);
-        } catch (IOException ex) {
-            cli.error("Could not save '" + filename + "'");
-            throw ex;
+            load(input);
+        } catch (IOException e) {
+            cli.error("Could not load properties from file '" + filename + "'");
+            return;
+        } catch (IllegalArgumentException e) {
+            cli.error("File '" + filename + "' contained a malformed unicode sequence");
+            return;
         } finally {
-            out.close();
+            input.close();
         }
+        cli.info("Successfully loaded properties from file: '" + filename + "'");
     }
     
     /**
      * Removes unused properties i.e. properties not defined in defaultValues
      * @return true if some properties were ignored
      */
-    boolean removeUnusedProperties() {
+    private boolean removeUnusedProperties() {
         boolean removed = false;
         Iterator<Object> iterator = this.keySet().iterator();
         while (iterator.hasNext()) {
@@ -91,7 +97,7 @@ public abstract class AbstractProperties extends Properties {
      * Adds missing properties for which defaultValues exist
      * @return true if missing properties were added
      */
-    boolean addMissingProperties() {
+    private boolean addMissingProperties() {
         boolean missing = false;
         for (Object key : defaultValues.keySet()) {
             if (!this.containsKey(key)) {
@@ -101,15 +107,51 @@ public abstract class AbstractProperties extends Properties {
                 this.setProperty((String) key, value);
             }
         }
-        
         return missing;
     }
-    
+
+    /**
+     * Parses variables from the property strings.
+     */
+    protected abstract void parseProperties();
+
     protected void parsingError(String property) {
         String defString = defaultValues.get(property);
         this.setProperty(property, defString);
         cli.warning("Parsing " + property + " failed. Using default (" + defString + ")");
     }
-    
-    protected abstract void parseProperties();
+
+    //TODO add info msg for generating new files
+    private void saveProperties(String filename) {
+        try {
+            if (output == null) output = new FileOutputStream(filename);
+        } catch (FileNotFoundException e) {
+            cli.error("Could not find file '" + filename + "'");
+        } catch (SecurityException e) {
+            cli.error("Could not open file '" + filename + "'. Insufficient write permissions");
+        }
+        try {
+            this.store(output, "TODO");
+        } catch (IOException e) {
+            cli.error("Could not write on '" + filename + "'");
+        } finally {
+            try {
+                output.close();
+            } catch (IOException e) {
+                cli.error("Could not save file '" + filename + "'");
+            }
+        }
+    }
+
+    /*
+    public Enumeration keys() {
+        Enumeration keysEnum = this.keys();
+        Vector<String> keyList = new Vector<>();
+        while (keysEnum.hasMoreElements()){
+            keyList.add((String)keysEnum.nextElement());
+        }
+        Collections.sort(keyList);
+        return keyList.elements();
+    }
+    */
 }
