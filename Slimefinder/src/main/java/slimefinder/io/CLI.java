@@ -54,10 +54,7 @@ public class CLI {
         flush();
     }
 
-    /**
-     * Prints the help message
-     */
-    public synchronized void helpMessage() {
+    public synchronized void printHelp() {
         info(
             "-h" + LN  +
             "  Display this message" + LN +

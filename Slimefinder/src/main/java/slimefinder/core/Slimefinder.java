@@ -11,8 +11,6 @@ import slimefinder.io.properties.ImageProperties;
 import slimefinder.io.properties.MaskProperties;
 import slimefinder.io.properties.SearchProperties;
 
-import static slimefinder.util.FormatHelper.LN;
-
 public class Slimefinder {
 
     CLI cli;
@@ -56,7 +54,7 @@ public class Slimefinder {
 
     public void execute() {
         if (help) {
-            cli.helpMessage();
+            cli.printHelp();
             return;
         }
 
