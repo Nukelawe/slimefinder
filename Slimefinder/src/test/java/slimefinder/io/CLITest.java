@@ -56,7 +56,7 @@ public class CLITest {
 
     @Before
     public void setUp() {
-        cli = new CLI();
+        cli = CLI.getCLI();
         task = new TrackableTask() {
             @Override
             public String startInfo() {
