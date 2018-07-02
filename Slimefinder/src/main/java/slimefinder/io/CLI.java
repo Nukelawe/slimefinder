@@ -20,8 +20,16 @@ public class CLI {
      */
     private int lineWidth;
 
-    public CLI() {
+    private CLI() {
         printBuffer = new StringBuffer();
+    }
+
+    private static class CLIHelper {
+        private static final CLI INSTANCE = new CLI();
+    }
+
+    public static CLI getCLI() {
+        return CLIHelper.INSTANCE;
     }
 
     private void flush(boolean rewrite) {

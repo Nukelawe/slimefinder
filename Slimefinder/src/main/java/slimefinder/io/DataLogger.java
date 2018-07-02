@@ -46,7 +46,7 @@ public class DataLogger implements IDataLogger {
             cli.error("Could not write on the output file");
             throw ex;
         }
-        
+
         try {
             w.flush();
         } catch (IOException ex) {
@@ -54,7 +54,7 @@ public class DataLogger implements IDataLogger {
             throw ex;
         }
     }
-    
+
     public void start() throws IOException {
         try {
             w = new FileWriter(pSearch.resultsFile, pSearch.append);
@@ -65,7 +65,7 @@ public class DataLogger implements IDataLogger {
         if (!pSearch.append)
             write("block-position", "chunk-position", "blockSize", "chunkSize");
     }
-    
+
     public void close() {
         try {
             w.close();

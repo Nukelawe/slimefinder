@@ -26,7 +26,7 @@ public class Slimefinder {
     }
 
     public Slimefinder() {
-        cli = new CLI();
+        cli = CLI.getCLI();
     }
 
     public void parseArguments(String[] args) {
