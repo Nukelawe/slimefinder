@@ -61,16 +61,15 @@ public class Slimefinder {
         }
 
         try {
-            MaskProperties pMask = new MaskProperties("mask.properties", cli);
+            MaskProperties pMask = new MaskProperties("mask.properties");
             if (search)  {
-                SearchProperties pSearch = new SearchProperties("search.properties", cli);
-                DataLogger logger = new DataLogger(pSearch, cli);
-                SearchTask searchMasks = new SearchTask(pSearch, pMask, logger);
+                SearchProperties pSearch = new SearchProperties("search.properties");
+                SearchTask searchMasks = new SearchTask(pSearch, pMask);
                 runTask(searchMasks);
             }
             if (images) {
-                ImageProperties pImage = new ImageProperties("image.properties", cli);
-                ImageTask generateImgs = new ImageTask(pImage, pMask, cli);
+                ImageProperties pImage = new ImageProperties("image.properties");
+                ImageTask generateImgs = new ImageTask(pImage, pMask);
                 runTask(generateImgs);
             }
         } catch (IOException ex) {

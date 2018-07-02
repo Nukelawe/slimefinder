@@ -3,6 +3,8 @@ package slimefinder.core.search;
 import slimefinder.core.ExtremumMask;
 import slimefinder.core.Mask;
 import slimefinder.core.TrackableTask;
+import slimefinder.io.CLI;
+import slimefinder.io.DataLogger;
 import slimefinder.io.properties.MaskProperties;
 import slimefinder.io.properties.SearchProperties;
 import static slimefinder.util.FormatHelper.*;
@@ -25,12 +27,11 @@ public class SearchTask extends TrackableTask {
 
     public SearchTask(
         SearchProperties searchProperties,
-        MaskProperties maskProperties,
-        IDataLogger logger
+        MaskProperties maskProperties
     ) {
         this.pSearch = searchProperties;
         this.pMask = maskProperties;
-        this.logger = logger;
+        this.logger = new DataLogger(pSearch, CLI.getCLI());
         this.path = new SearchPath(pSearch.posChunk, pSearch.minWidth, pSearch.maxWidth);
     }
 

@@ -22,8 +22,8 @@ public class ImageProperties extends AbstractProperties {
     public ImageProperties() {
     }
 
-    public ImageProperties(String filename, CLI cli) throws IOException {
-        super(filename, cli);
+    public ImageProperties(String filename) throws IOException {
+        super(filename);
     }
 
     protected void setDefaults() {
