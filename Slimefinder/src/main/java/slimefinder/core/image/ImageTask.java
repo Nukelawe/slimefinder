@@ -4,7 +4,6 @@ import slimefinder.core.Mask;
 import slimefinder.core.TrackableTask;
 import slimefinder.io.CLI;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,14 +15,13 @@ import javax.imageio.ImageIO;
 import slimefinder.io.properties.*;
 import slimefinder.util.Position;
 
-
 import static slimefinder.util.FormatHelper.*;
 import static slimefinder.util.FormatHelper.LN;
+import static slimefinder.io.properties.ImageProperties.*;
 
 public class ImageTask extends TrackableTask {
 
     private final MaskProperties pSlime;
-    private final ImageProperties pImage;
     private Scanner scanner;
     private long bytesRead;
     private long imagesGenerated;
@@ -31,24 +29,28 @@ public class ImageTask extends TrackableTask {
     private long linesParsed;
     private long parsingErrors;
 
-    private File inputFile;
+    private File input;
 
     private ImageGenerator generator;
 
+    private String filename;
+    private String outDir;
+
     public ImageTask(
-        ImageProperties imageProperties,
-        MaskProperties slimeProperties,
+        ImageProperties pImage,
+        MaskProperties pSlime,
         CLI cli
     ) throws FileNotFoundException {
         this.cli = cli;
-        pSlime = slimeProperties;
-        pImage = imageProperties;
-        inputFile = new File(pImage.inputFile);
-        generator = new ImageGenerator(imageProperties);
+        filename = pImage.getProperty(INPUT_FILE);
+        outDir = pImage.getString(OUTPUT_DIR);
+        this.pSlime = pSlime;
+        input = new File(filename);
+        generator = new ImageGenerator(pImage);
         try {
-            scanner = new Scanner(new File(pImage.inputFile));
+            scanner = new Scanner(new File(filename));
         } catch (IOException e) {
-            cli.error("Could not open file: '" + pImage.inputFile + "'");
+            cli.error("Could not open file: '" + filename + "'");
             throw e;
         }
     }
@@ -64,7 +66,7 @@ public class ImageTask extends TrackableTask {
             while (scanner.hasNextLine()) {
                 Position pBlock = readLine(scanner.nextLine());
                 if (pBlock == null) continue;
-                mask.moveTo(pBlock.x, pBlock.z);
+                mask.moveTo(pBlock);
                 saveImage(generator.draw(mask), getFilename(mask));
             }
         } catch (IOException e) {
@@ -97,7 +99,7 @@ public class ImageTask extends TrackableTask {
 
     private void saveImage(BufferedImage image, String filename) throws IOException {
         try {
-            File outputFile = new File(pImage.outputDir + "/" + filename);
+            File outputFile = new File(outDir + "/" + filename);
             File parentDir = outputFile.getParentFile();
             if (parentDir != null && !parentDir.exists()) {
                 parentDir.mkdirs();
@@ -113,7 +115,7 @@ public class ImageTask extends TrackableTask {
 
     private static String getFilename(Mask m) {
         return
-            m.posBlock.x + "x_" + m.posBlock.z + "z_"
+            m.pos.block.x + "x_" + m.pos.block.z + "z_"
             + m.getChunkSize() + "c" + m.getChunkSurfaceArea() + "_"
             + m.getBlockSize() + "b" + m.getBlockSurfaceArea() + ".png";
     }
@@ -124,8 +126,8 @@ public class ImageTask extends TrackableTask {
      */
     public String startInfo() {
         return
-            "Generating images of masks listed in file: '" + pImage.inputFile + "'" + LN +
-            "Saving generated images to: '" + pImage.outputDir + "'";
+            "Generating images of masks listed in file: '" + filename + "'" + LN +
+            "Saving generated images to: '" + outDir + "'";
     }
 
     /**
@@ -133,7 +135,7 @@ public class ImageTask extends TrackableTask {
      */
     public synchronized String progressInfo() {
         long bytesRead = this.bytesRead;
-        long totalBytes = inputFile.length();
+        long totalBytes = input.length();
         long time = getDuration();
         float progress = (float) bytesRead / totalBytes;
         if (isFinished) progress = 1f;

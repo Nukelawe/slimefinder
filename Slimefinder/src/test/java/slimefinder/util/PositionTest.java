@@ -4,8 +4,6 @@ package slimefinder.util;
 import static org.junit.Assert.*;
 import org.junit.*;
 
-import slimefinder.util.Position;
-
 public class PositionTest {
 
     @Test
@@ -39,13 +37,13 @@ public class PositionTest {
         int count = 500;
 
         for (int j = 0; j < count/2; j++) {
-            p.move(1,Direction.SOUTH);
+            p.moveBy(1,Direction.SOUTH);
             for (long i = 0; i < count; i++) {
-                p.move(1,Direction.EAST);
+                p.moveBy(1,Direction.EAST);
             }
-            p.move(1,Direction.SOUTH);
+            p.moveBy(1,Direction.SOUTH);
             for (long i = 0; i < count; i++) {
-                p.move(1,Direction.WEST);
+                p.moveBy(1,Direction.WEST);
             }
         }
 

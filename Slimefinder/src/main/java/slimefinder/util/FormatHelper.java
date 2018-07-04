@@ -22,11 +22,11 @@ public class FormatHelper {
         return String.format("%1$02d:%2$02d:%3$02d", hours, mins % 60, secs % 60);
     }
 
-    public static String chunkPos(Mask m) {
-        return m.posChunk.x + ":" + m.posIn.x + "," + m.posChunk.z + ":" + m.posIn.z;
+    public static String chunkFormat(Position pos) {
+        return pos.chunk.x + ":" + pos.in.x + "," + pos.chunk.z + ":" + pos.in.z;
     }
 
-    public static String blockPos(Mask m) {
-        return m.posBlock.x + "," + m.posBlock.z;
+    public static String blockFormat(Position pos) {
+        return pos.block.x + "," + pos.block.z;
     }
 }

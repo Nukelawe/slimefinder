@@ -7,9 +7,7 @@ import slimefinder.core.image.ImageTask;
 import slimefinder.core.search.SearchTask;
 import slimefinder.io.CLI;
 import slimefinder.io.DataLogger;
-import slimefinder.io.properties.ImageProperties;
-import slimefinder.io.properties.MaskProperties;
-import slimefinder.io.properties.SearchProperties;
+import slimefinder.io.properties.*;
 
 public class Slimefinder {
 
@@ -58,16 +56,17 @@ public class Slimefinder {
             return;
         }
 
+        PropertyLoader loader = new PropertyLoader(cli);
         try {
-            MaskProperties pMask = new MaskProperties("mask.properties", cli);
+            MaskProperties pMask = (MaskProperties) loader.createProperties(new MaskProperties());
             if (search)  {
-                SearchProperties pSearch = new SearchProperties("search.properties", cli);
-                DataLogger logger = new DataLogger(pSearch, cli);
+                SearchProperties pSearch = (SearchProperties) loader.createProperties(new SearchProperties());
+                DataLogger logger = new DataLogger(cli);
                 SearchTask searchMasks = new SearchTask(pSearch, pMask, logger);
                 runTask(searchMasks);
             }
             if (images) {
-                ImageProperties pImage = new ImageProperties("image.properties", cli);
+                ImageProperties pImage = (ImageProperties) loader.createProperties(new ImageProperties());
                 ImageTask generateImgs = new ImageTask(pImage, pMask, cli);
                 runTask(generateImgs);
             }
@@ -96,13 +95,13 @@ public class Slimefinder {
      * It determines which chunks are slime chunks.
      *
      * @param seed
-     * @param xChunk - chunk x coordinate
-     * @param zChunk - chunk z coordinate
-     * @return true if (xChunk, zChunk) is a slime chunk, false otherwise
+     * @param chunkX - chunk x coordinate
+     * @param chunkZ - chunk z coordinate
+     * @return true if (chunkX, chunkZ) is a slime chunk, false otherwise
      */
-    public static boolean isSlimeChunk(long seed, int xChunk, int zChunk) {
+    public static boolean isSlimeChunk(long seed, int chunkX, int chunkZ) {
         Random r = new Random();
-        r.setSeed(seed + (long) (xChunk * xChunk * 4987142) + (long) (xChunk * 5947611) + (long) (zChunk * zChunk) * 4392871L + (long) (zChunk * 389711) ^ 987234911L);
+        r.setSeed(seed + (long) (chunkX * chunkX * 4987142) + (long) (chunkX * 5947611) + (long) (chunkZ * chunkZ) * 4392871L + (long) (chunkZ * 389711) ^ 987234911L);
         return r.nextInt(10) == 0;
     }
 }

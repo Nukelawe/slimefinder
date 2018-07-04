@@ -26,20 +26,6 @@ public class Direction {
         this.z = (dz == 0) ? 0 : (dz > 0) ? 1 : -1;
     }
 
-    public static Direction getDirection(int x, int z) {
-        if (x != 0) {
-            if (z == 1) {
-                return SOUTH;
-            } else {
-                return NORTH;
-            }
-        } else if (x == 1) {
-            return EAST;
-        } else {
-            return WEST;
-        }
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

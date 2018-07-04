@@ -6,6 +6,8 @@ import java.awt.image.BufferedImage;
 import slimefinder.core.Mask;
 import slimefinder.io.properties.ImageProperties;
 
+import static slimefinder.io.properties.ImageProperties.*;
+
 public class ImageGenerator {
     private final Color
         gridColor = Color.BLACK,
@@ -26,19 +28,21 @@ public class ImageGenerator {
      */
     private final int wChunk;
 
-    /**
-     * Width of the whole image in pixels
-     */
-    private final int wImage;
+    private BufferedImage buff;
 
-    private final ImageProperties pImage;
+    private final int wBlock, wGrid;
+    private final boolean drawSlimeChunks, drawBlockMask, drawChunkMask, drawCenter;
 
-    BufferedImage buff;
+    public ImageGenerator(ImageProperties pImage) {
+        wBlock = pImage.getInt(BLOCK_WIDTH);
+        wGrid = pImage.getInt(GRID_WIDTH);
+        drawSlimeChunks = pImage.getBoolean(DRAW_SLIME_CHUNKS);
+        drawBlockMask = pImage.getBoolean(DRAW_BLOCK_MASK);
+        drawChunkMask = pImage.getBoolean(DRAW_CHUNK_MASK);
+        drawCenter = pImage.getBoolean(DRAW_CENTER);
 
-    public ImageGenerator(ImageProperties imageProperties) {
-        wChunk = 16 * imageProperties.wBlock + imageProperties.wGrid;
-        wImage = wChunk * (2 * Mask.R_CHUNK + 1) - imageProperties.wGrid;
-        pImage = imageProperties;
+        wChunk = 16 * wBlock + wGrid;
+        int wImage = wChunk * (2 * Mask.R_CHUNK + 1) - wGrid;
         buff = new BufferedImage(wImage, wImage, BufferedImage.TYPE_INT_BGR);
     }
 
@@ -55,30 +59,30 @@ public class ImageGenerator {
                 for (int xIn = 0; xIn < xchunkWidth; xIn++) {
                     for (int zIn = 0; zIn < zchunkWidth; zIn++) {
 
-                        int xblockWidth = (xIn < 16) ? pImage.wBlock : pImage.wGrid;
-                        int zblockWidth = (zIn < 16) ? pImage.wBlock : pImage.wGrid;
+                        int xblockWidth = (xIn < 16) ? wBlock : wGrid;
+                        int zblockWidth = (zIn < 16) ? wBlock : wGrid;
                         for (int xPix = 0; xPix < xblockWidth; xPix++) {
                             for (int zPix = 0; zPix < zblockWidth; zPix++) {
 
                                 // Pixel coordinates on the image
-                                int x = (xChunk + Mask.R_CHUNK) * wChunk + xIn * pImage.wBlock + xPix;
-                                int z = (zChunk + Mask.R_CHUNK) * wChunk + zIn * pImage.wBlock + zPix;
+                                int x = (xChunk + Mask.R_CHUNK) * wChunk + xIn * wBlock + xPix;
+                                int z = (zChunk + Mask.R_CHUNK) * wChunk + zIn * wBlock + zPix;
 
                                 // Chunk background
                                 buff.setRGB(x, z, backgroundColor.getRGB());
 
                                 // Slime chunks
-                                if (pImage.drawSlimeChunks && m.isSlimeChunk(xChunk, zChunk)) {
+                                if (drawSlimeChunks && m.isSlimeChunk(xChunk, zChunk)) {
                                     buff.setRGB(x, z, slimeColor.getRGB());
                                 }
 
                                 // Block mask
-                                if (pImage.drawBlockMask && !m.isBlockInside(16 * xChunk + xIn, 16 * zChunk + zIn)) {
+                                if (drawBlockMask && !m.isBlockInside(16 * xChunk + xIn, 16 * zChunk + zIn)) {
                                     buff.setRGB(x, z, scaleRGB(buff.getRGB(x, z), blockMaskTransparency));
                                 }
 
                                 // Chunk mask
-                                if (pImage.drawChunkMask && !m.isChunkInside(xChunk, zChunk)) {
+                                if (drawChunkMask && !m.isChunkInside(xChunk, zChunk)) {
                                     buff.setRGB(x, z, scaleRGB(buff.getRGB(x, z), chunkMaskTransparency));
                                 }
 
@@ -88,7 +92,7 @@ public class ImageGenerator {
                                 }
 
                                 // Center marker
-                                if (pImage.drawCenter && isCenter(xChunk, zChunk, xIn - m.posIn.x, zIn - m.posIn.z, centerMarkerWidth, centerMarkerThickness)) {
+                                if (drawCenter && isCenter(xChunk, zChunk, xIn - m.pos.in.x, zIn - m.pos.in.z, centerMarkerWidth, centerMarkerThickness)) {
                                     buff.setRGB(x, z, centerColor.getRGB());
                                 }
                             }

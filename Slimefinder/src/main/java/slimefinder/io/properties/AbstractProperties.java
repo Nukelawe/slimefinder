@@ -1,115 +1,66 @@
 package slimefinder.io.properties;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Properties;
+import slimefinder.util.Position;
 
-import slimefinder.io.CLI;
+import java.util.*;
 
 public abstract class AbstractProperties extends Properties {
 
-    protected String filename;
-    protected HashMap<String, String> defaultValues;
-    protected CLI cli;
+    protected LinkedHashMap<String, Object> defaultValues;
+    protected Map<String, Object> values;
+    public final String filename;
 
-    /**
-     * Constructs an AbstractProperties object by reading reading a propertiy file.
-     * @param filename
-     * @throws IOException
-     */
-    public AbstractProperties(String filename, CLI cli) throws IOException {
-        this.filename = filename;
-        this.cli = cli;
-        defaultValues = new HashMap<>();
+    public AbstractProperties(String filename) {
+        this.filename = filename + ".properties";
+        defaultValues = new LinkedHashMap<>();
+        values = new HashMap<>();
         setDefaults();
-        loadProperties();
+    }
+
+    @Override
+    public Enumeration keys() {
+        Enumeration keysEnum = super.keys();
+        Vector<String> keyList = new Vector<>();
+        while(keysEnum.hasMoreElements()){
+            keyList.add((String)keysEnum.nextElement());
+        }
+        Collections.sort(keyList, (s1, s2) -> {
+            Object defaultKeyOrder[] = defaultValues.keySet().toArray();
+            for (int i = 0; i < defaultKeyOrder.length; i++) {
+                if (defaultKeyOrder[i].equals(s1)) return -1;
+                if (defaultKeyOrder[i].equals(s2)) return 1;
+            }
+            return 0;
+        });
+        return keyList.elements();
     }
 
     /**
-     * Constructs an AbstractProperites object for testing that needs to be manually initialized.
+     * To manually set the properties for testing
      */
-    public AbstractProperties() {
-    }
-    
-    private void loadProperties() throws IOException {
-        readFiles(filename);
-        removeUnusedProperties();
-        addMissingProperties();
-        parseProperties();
-        saveProperties(new FileOutputStream(filename));
+    public void setProperty(String key, Object value) {
+        values.put(key, value);
     }
 
     protected abstract void setDefaults();
-    
-    void readFiles(String filename) throws IOException {
-        try {
-            FileInputStream in = new FileInputStream(filename);
-            this.load(in);
-            in.close();
-        } catch (IOException ex) {
-            cli.error("Could not load properties from file '" + filename + "'");
-            return;
-        }
 
-        cli.info("Successfully loaded properties from file: '" + filename + "'");
+    public Integer getInt(String property) {
+        return (Integer) values.get(property);
     }
-    
-    void saveProperties(OutputStream out) throws IOException {
-        try {
-            this.store(out, null);
-        } catch (IOException ex) {
-            cli.error("Could not save '" + filename + "'");
-            throw ex;
-        } finally {
-            out.close();
-        }
+
+    public Long getLong(String property) {
+        return (Long) values.get(property);
     }
-    
-    /**
-     * Removes unused properties i.e. properties not defined in defaultValues
-     * @return true if some properties were ignored
-     */
-    boolean removeUnusedProperties() {
-        boolean removed = false;
-        Iterator<Object> iterator = this.keySet().iterator();
-        while (iterator.hasNext()) {
-            String key = iterator.next().toString();
-            if (!defaultValues.containsKey(key)) {
-                removed = true;
-                cli.warning("Unused property, '" + key + "' in '" + filename + "'");
-                iterator.remove();
-            }
-        }
-        return removed;
+
+    public Boolean getBoolean(String property) {
+        return (Boolean) values.get(property);
     }
-    
-    /**
-     * Adds missing properties for which defaultValues exist
-     * @return true if missing properties were added
-     */
-    boolean addMissingProperties() {
-        boolean missing = false;
-        for (Object key : defaultValues.keySet()) {
-            if (!this.containsKey(key)) {
-                missing = true;
-                String value = defaultValues.get(key);
-                cli.warning(key + " not specified. Using default (" + value + ")");
-                this.setProperty((String) key, value);
-            }
-        }
-        
-        return missing;
+
+    public String getString(String property) {
+        return (String) values.get(property);
     }
-    
-    protected void parsingError(String property) {
-        String defString = defaultValues.get(property);
-        this.setProperty(property, defString);
-        cli.warning("Parsing " + property + " failed. Using default (" + defString + ")");
+
+    public Position getPosition(String property) {
+        return (Position) values.get(property);
     }
-    
-    protected abstract void parseProperties();
 }
