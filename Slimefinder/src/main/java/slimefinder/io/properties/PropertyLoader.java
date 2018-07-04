@@ -14,10 +14,12 @@ public class PropertyLoader {
         this.cli = cli;
     }
 
-    public AbstractProperties createProperties(AbstractProperties properties) throws IOException {
-        readProperties(properties, openInputStream(properties.filename));
-        writeProperties(properties, openOutputStream(properties.filename));
-        return properties;
+    public boolean createProperties(AbstractProperties properties) throws IOException {
+        InputStream in = openInputStream(properties.filename);
+        read(properties, in);
+        OutputStream out = openOutputStream(properties.filename);
+        write(properties, out);
+        return in == null;
     }
 
     private InputStream openInputStream(String filename) {
@@ -38,16 +40,16 @@ public class PropertyLoader {
         }
     }
 
-    public void readProperties(AbstractProperties properties, InputStream in) {
+    public void read(AbstractProperties properties, InputStream in) {
         if (in != null) {
-            loadProperties(properties, in);
-            removeUnusedProperties(properties);
+            load(properties, in);
+            removeUnused(properties);
         }
-        addMissingProperties(properties, in != null);
-        parseProperties(properties);
+        addMissing(properties, in != null);
+        parse(properties);
     }
 
-    public void writeProperties(AbstractProperties properties, OutputStream out) throws IOException {
+    public void write(AbstractProperties properties, OutputStream out) throws IOException {
         try {
             properties.store(out, null);
         } catch (IOException e) {
@@ -68,7 +70,7 @@ public class PropertyLoader {
      * @param properties
      * @param in
      */
-    private void loadProperties(AbstractProperties properties, InputStream in) {
+    private void load(AbstractProperties properties, InputStream in) {
         try {
             properties.load(in);
         } catch (IOException | IllegalArgumentException e) {
@@ -87,12 +89,12 @@ public class PropertyLoader {
     /**
      * Removes unused properties i.e. properties not defined in defaultValues
      */
-    private void removeUnusedProperties(AbstractProperties properties) {
+    private void removeUnused(AbstractProperties properties) {
         Iterator<Object> iterator = properties.keySet().iterator();
         while (iterator.hasNext()) {
             String key = iterator.next().toString();
             if (!properties.defaultValues.containsKey(key)) {
-                cli.warning("Unused property, '" + key + "' in '" + properties.filename + "'");
+                cli.warning("Deleting unused property '" + key + "' in '" + properties.filename + "'");
                 iterator.remove();
             }
         }
@@ -103,7 +105,7 @@ public class PropertyLoader {
      * If parsing fails, the value for that property is taken from the defaults.
      * @param properties
      */
-    private void parseProperties(AbstractProperties properties) {
+    private void parse(AbstractProperties properties) {
         for (Object key : properties.defaultValues.keySet()) {
             String property = (String) properties.get(key);
             Class klass = properties.defaultValues.get(key).getClass();
@@ -125,7 +127,8 @@ public class PropertyLoader {
                 Object defaultValue = properties.defaultValues.get(key);
                 properties.setProperty((String) key, defaultValue.toString());
                 properties.values.put((String) key, defaultValue);
-                cli.warning("Parsing " + key + " failed. Using default (" + defaultValue + ")");
+                cli.warning("'" + property +"' is not a valid value for '" + key +
+                    "'. Using default '" + key + "=" + defaultValue + "'");
                 continue;
             }
             properties.values.put((String) key, value);
@@ -135,12 +138,12 @@ public class PropertyLoader {
     /**
      * Adds missing properties for which defaultValues exist
      */
-    private void addMissingProperties(AbstractProperties properties, boolean warn) {
+    private void addMissing(AbstractProperties properties, boolean warn) {
         for (Object key : properties.defaultValues.keySet()) {
             if (!properties.containsKey(key)) {
-                String value = properties.defaultValues.get(key).toString();
-                if (warn) cli.warning(key + " not specified. Using default (" + value + ")");
-                properties.setProperty((String) key, value);
+                String defaultValue = properties.defaultValues.get(key).toString();
+                if (warn) cli.warning("'" + key + "' not specified. Using default '" + key + "=" + defaultValue + "'");
+                properties.setProperty((String) key, defaultValue);
             }
         }
     }

@@ -184,7 +184,7 @@ public class SearchTask extends TrackableTask {
             "Searching mask positions with criteria: " +
             minBlockSize + " <= blockSize <= " + maxBlockSize + " or " +
             minChunkSize + " <= chunkSize <= " + maxChunkSize + LN +
-            "Saving results in file: '" + resultsFile + "'";
+            "Saving results to file: '" + resultsFile + "'";
     }
 
     /**

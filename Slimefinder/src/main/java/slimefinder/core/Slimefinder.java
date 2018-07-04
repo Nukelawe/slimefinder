@@ -9,9 +9,15 @@ import slimefinder.io.CLI;
 import slimefinder.io.DataLogger;
 import slimefinder.io.properties.*;
 
+import static slimefinder.util.FormatHelper.LN;
+
 public class Slimefinder {
 
-    CLI cli;
+    private CLI cli;
+
+    private MaskProperties pMask;
+    private SearchProperties pSearch;
+    private ImageProperties pImage;
 
     boolean search, images, help;
 
@@ -23,6 +29,9 @@ public class Slimefinder {
 
     public Slimefinder() {
         cli = new CLI();
+        pMask = new MaskProperties();
+        pSearch = new SearchProperties();
+        pImage = new ImageProperties();
     }
 
     public void parseArguments(String[] args) {
@@ -51,27 +60,26 @@ public class Slimefinder {
     }
 
     public void execute() {
-        if (help) {
-            cli.printHelp();
-            return;
-        }
-
-        PropertyLoader loader = new PropertyLoader(cli);
         try {
-            MaskProperties pMask = (MaskProperties) loader.createProperties(new MaskProperties());
-            if (search)  {
-                SearchProperties pSearch = (SearchProperties) loader.createProperties(new SearchProperties());
-                DataLogger logger = new DataLogger(cli);
-                SearchTask searchMasks = new SearchTask(pSearch, pMask, logger);
-                runTask(searchMasks);
+            if (help) {
+                cli.printHelp();
+                return;
             }
-            if (images) {
-                ImageProperties pImage = (ImageProperties) loader.createProperties(new ImageProperties());
-                ImageTask generateImgs = new ImageTask(pImage, pMask, cli);
-                runTask(generateImgs);
-            }
+
+            PropertyLoader loader = new PropertyLoader(cli);
+            boolean loadingFailed = loader.createProperties(pMask);
+            if (search) loadingFailed = loader.createProperties(pSearch) || loadingFailed;
+            if (images) loadingFailed = loader.createProperties(pImage) || loadingFailed;
+            if (loadingFailed) return;
+            cli.flush();
+
+            if (search)
+                runTask(new SearchTask(pSearch, pMask, new DataLogger(cli)));
+            if (images)
+                runTask(new ImageTask(pImage, pMask, cli));
         } catch (IOException ex) {
-            cli.info("");
+        } finally {
+            cli.info(LN);
             cli.flush();
         }
     }
