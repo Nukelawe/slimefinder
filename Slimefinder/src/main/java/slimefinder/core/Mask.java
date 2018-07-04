@@ -6,6 +6,8 @@ import java.util.HashSet;
 import slimefinder.io.properties.MaskProperties;
 import slimefinder.util.*;
 
+import static slimefinder.io.properties.MaskProperties.*;
+
 public class Mask {
 
     /**
@@ -33,7 +35,7 @@ public class Mask {
     /**
      * Block, chunk and within-chunk positions of the center of the mask
      */
-    public Position posBlock, posChunk, posIn;
+    public Position pos;
 
     /**
      * Each chunk in the neighborhood of the mask is given a weight that 
@@ -44,37 +46,41 @@ public class Mask {
     private int[][] chunkWeights;
     
     /**
-     * An object containing the user defined parameters
-     */
-    private MaskProperties pMask;
-    
-    /**
      * The collection of slime chunks in the neighborhood of this mask. Each slime chunk is listed by its
      * absolute chunk coordinates.
      */
-    private Collection<Position> slimeChunks;
+    private Collection<Point> slimeChunks;
+
+    private MaskProperties pMask;
+
+    private long worldSeed;
+    private int chunkWeight;
+    private boolean exclusionSphere, despawnSphere;
 
     private Mask(MaskProperties pMask) {
         this.pMask = pMask;
+        int yOffset = pMask.getInt(OFFSET);
+        worldSeed = pMask.getLong(SEED);
+        chunkWeight = pMask.getInt(WEIGHT);
+        exclusionSphere = pMask.getBoolean(EXCLUSION);
+        despawnSphere = pMask.getBoolean(DESPAWN);
         slimeChunks = new HashSet<>();
         chunkWeights = new int[2 * R_CHUNK + 1][2 * R_CHUNK + 1];
-        rExclusion = 24 * 24 - Math.min(pMask.yOffset * pMask.yOffset, 24 * 24);
-        rDespawn = 128 * 128 - pMask.yOffset * pMask.yOffset;
-        posBlock = Position.origin();
-        posChunk = Position.origin();
-        posIn = Position.origin();
+        rExclusion = 24 * 24 - Math.min(yOffset * yOffset, 24 * 24);
+        rDespawn = 128 * 128 - yOffset * yOffset;
+        pos = new Position(0, 0);
         needsWeightUpdate = true;
         needsSizeUpdate = true;
     }
     
-    public Mask(MaskProperties pMask, int xBlock, int zBlock) {
+    public Mask(MaskProperties pMask, int blockX, int blockZ) {
         this(pMask);
-        moveTo(Math.floorDiv(xBlock, 16), Math.floorDiv(zBlock, 16), xBlock & 15, zBlock & 15);
+        moveTo(blockX, blockZ);
     }
-    
-    public Mask(MaskProperties pMask, int xChunk, int zChunk, int xIn, int zIn) {
+
+    public Mask(MaskProperties pMask, int chunkX, int chunkZ, int inX, int inZ) {
         this(pMask);
-        moveTo(xChunk, zChunk, xIn, zIn);
+        moveTo(chunkX, chunkZ, inX, inZ);
     }
 
     /**
@@ -86,36 +92,22 @@ public class Mask {
         moveTo(m);
     }
 
-    /**
-     * Sets the position of the mask in block coordinates.
-     * @param xBlock
-     * @param zBlock
-     */
-    public void moveTo(int xBlock, int zBlock) {
-        moveTo(Math.floorDiv(xBlock, 16), Math.floorDiv(zBlock, 16), xBlock & 15, zBlock & 15);
+    public void moveTo(int blockX, int blockZ) {
+        needsWeightUpdate = needsWeightUpdate || !(pos.in.x == (blockX & 15) && pos.in.z == (blockZ & 15));
+        needsSizeUpdate = needsSizeUpdate || !(pos.block.x == blockX && pos.block.z == blockZ);
+        pos.setPos(blockX, blockZ);
+        update();
     }
 
-    /**
-     * Sets the position of the mask in chunk coordinates.
-     * @param xChunk
-     * @param zChunk
-     * @param xIn
-     * @param zIn
-     */
-    public void moveTo(int xChunk, int zChunk, int xIn, int zIn) {
-        needsWeightUpdate = needsWeightUpdate || !(posIn.x == xIn && posIn.z == zIn);
-        needsSizeUpdate = needsSizeUpdate || !(posBlock.x == 16 * xChunk + xIn && posBlock.z == 16 * zChunk + zIn);
-        posBlock.setPos(16 * xChunk + xIn, zChunk * 16 + zIn);
-        posChunk.setPos(xChunk, zChunk);
-        posIn.setPos(xIn, zIn);
+    public void moveTo(int chunkX, int chunkZ, int inX, int inZ) {
+        needsWeightUpdate = needsWeightUpdate || !(pos.in.x == inX && pos.in.z == inZ);
+        needsSizeUpdate = needsSizeUpdate || !(pos.block.x == chunkX * 16 + inX && pos.block.z == chunkZ * 16 + inZ);
+        pos.setPos(chunkX, chunkZ, inX, inZ);
+        update();
+    }
 
-        if (needsWeightUpdate) {
-            updateWeights();
-        }
-
-        if (needsSizeUpdate) {
-            updateSize();
-        }
+    public void moveTo(Position to) {
+        moveTo(to.chunk.x, to.chunk.z, to.in.x, to.in.z);
     }
 
     /**
@@ -125,9 +117,7 @@ public class Mask {
      * @param m
      */
     public void moveTo(Mask m) {
-        posBlock.setPos(m.posBlock.x, m.posBlock.z);
-        posChunk.setPos(m.posChunk.x, m.posChunk.z);
-        posIn.setPos(m.posIn.x, m.posIn.z);
+        pos.setPos(m.pos);
         blockSize = m.blockSize;
         chunkSize = m.chunkSize;
         blockSurfaceArea = m.blockSurfaceArea;
@@ -146,29 +136,32 @@ public class Mask {
             xChunk = (i * d.z) - d.x * R_CHUNK;
             zChunk = (i * d.x) - d.z * R_CHUNK;
             if (isSlimeChunk(xChunk, zChunk)) {
-                slimeChunks.remove(new Position(xChunk + posChunk.x, zChunk + posChunk.z));
+                slimeChunks.remove(new Point(xChunk + pos.chunk.x, zChunk + pos.chunk.z));
             }
         }
-
-        posChunk.move(1, d);
-        posBlock.move(16, d);
+        pos.moveBy(16, d);
 
         for (i = -R_CHUNK; i <= R_CHUNK; i++) {
             xChunk = (i * d.z) + d.x * R_CHUNK;
             zChunk = (i * d.x) + d.z * R_CHUNK;
             if (isSlimeChunk(xChunk, zChunk)) {
-                slimeChunks.add(new Position(xChunk + posChunk.x, zChunk + posChunk.z));
+                slimeChunks.add(new Point(xChunk + pos.chunk.x, zChunk + pos.chunk.z));
             }
         }
 
         blockSize = 0;
         chunkSize = 0;
-        for (Position pos : slimeChunks) {
-            blockSize += chunkWeights[pos.x - posChunk.x + R_CHUNK][pos.z - posChunk.z + R_CHUNK];
-            if (isChunkInside(pos.x - posChunk.x, pos.z - posChunk.z)) {
+        for (Point point : slimeChunks) {
+            blockSize += chunkWeights[point.x - pos.chunk.x + R_CHUNK][point.z - pos.chunk.z + R_CHUNK];
+            if (isChunkInside(point.x- pos.chunk.x, point.z - pos.chunk.z)) {
                 ++chunkSize;
             }
         }
+    }
+
+    public void update() {
+        if (needsWeightUpdate) updateWeights();
+        if (needsSizeUpdate) updateSize();
     }
 
     /**
@@ -177,22 +170,22 @@ public class Mask {
      * whenever the position within the chunk (posIn) changes.
      */
     private void updateWeights() {
-        int xIn, zIn, xChunk, zChunk, chunkWeight;
+        int xIn, zIn, xChunk, zChunk, weight;
         blockSurfaceArea = 0;
         chunkSurfaceArea = 0;
         for (xChunk = -R_CHUNK; xChunk <= R_CHUNK; xChunk++) {
             for (zChunk = -R_CHUNK; zChunk <= R_CHUNK; zChunk++) {
-                chunkWeight = 0;
+                weight = 0;
                 for (xIn = 0; xIn <= 15; xIn++) {
                     for (zIn = 0; zIn <= 15; zIn++) {
                         if (isBlockInside(16 * xChunk + xIn, 16 * zChunk + zIn)) {
-                            ++chunkWeight;
+                            ++weight;
                         }
                     }
                 }
-                chunkWeights[xChunk + R_CHUNK][zChunk + R_CHUNK] = chunkWeight;
-                blockSurfaceArea += chunkWeight;
-                if (chunkWeight > pMask.chunkWeight) {
+                chunkWeights[xChunk + R_CHUNK][zChunk + R_CHUNK] = weight;
+                blockSurfaceArea += weight;
+                if (weight > chunkWeight) {
                     ++chunkSurfaceArea;
                 }
             }
@@ -212,7 +205,7 @@ public class Mask {
         for (xChunk = -R_CHUNK; xChunk <= R_CHUNK; xChunk++) {
             for (zChunk = -R_CHUNK; zChunk <= R_CHUNK; zChunk++) {
                 if (isSlimeChunk(xChunk, zChunk)) {
-                    slimeChunks.add(new Position(xChunk + posChunk.x, zChunk + posChunk.z));
+                    slimeChunks.add(new Point(xChunk + pos.chunk.x, zChunk + pos.chunk.z));
                     blockSize += chunkWeights[xChunk + R_CHUNK][zChunk + R_CHUNK];
                     if (isChunkInside(xChunk, zChunk)) {
                         ++chunkSize;
@@ -235,25 +228,25 @@ public class Mask {
      * @return true if the chunk is considered to be inside the mask
      */
     public boolean isChunkInside(int xChunk, int zChunk) {
-        return chunkWeights[xChunk + R_CHUNK][zChunk + R_CHUNK] > pMask.chunkWeight;
+        return chunkWeights[xChunk + R_CHUNK][zChunk + R_CHUNK] > chunkWeight;
     }
 
     /**
-     * Checks if the block at position (x,z) with respect to the center of the
+     * Checks if the block at position (xBlock,zBlock) with respect to the center of the
      * mask is inside the mask. To be considered inside the position has to be
      * within the despawn sphere and outside the exclusion sphere.
      *
-     * @param x
-     * @param z
-     * @return true if the block at coordinates x,z is within the mask, false 
+     * @param xBlock
+     * @param zBlock
+     * @return true if the block at coordinates xBlock,zBlock is within the mask, false
      * otherwise
      */
-    public boolean isBlockInside(int x, int z) {
-        int dsqr = (x - posIn.x) * (x - posIn.x) + (z - posIn.z) * (z - posIn.z);
-        if (pMask.despawnSphere && dsqr > rDespawn) {
+    public boolean isBlockInside(int xBlock, int zBlock) {
+        int dsqr = (xBlock - pos.in.x) * (xBlock - pos.in.x) + (zBlock - pos.in.z) * (zBlock - pos.in.z);
+        if (despawnSphere && dsqr > rDespawn) {
             return false;
         }
-        if (pMask.exclusionSphere && dsqr <= rExclusion) {
+        if (exclusionSphere && dsqr <= rExclusion) {
             return false;
         }
         return true;
@@ -263,12 +256,12 @@ public class Mask {
      * Determines if the chunk at (xChunk,zChunk) with respect to this mask's center
      * is a slime chunk.
      *
-     * @param xChunk - relative chunk x coordinate
-     * @param zChunk - relative chunk z coordinate
+     * @param xChunk - relative chunk xBlock coordinate
+     * @param zChunk - relative chunk zBlock coordinate
      * @return true if (xChunk, zChunk) with respect to the mask is a slime chunk, false otherwise
      */
     public boolean isSlimeChunk(int xChunk, int zChunk) {
-        return Slimefinder.isSlimeChunk(pMask.worldSeed, posChunk.x + xChunk, posChunk.z + zChunk);
+        return Slimefinder.isSlimeChunk(worldSeed, pos.chunk.x + xChunk, pos.chunk.z + zChunk);
     }
 
     public int getBlockSurfaceArea() {

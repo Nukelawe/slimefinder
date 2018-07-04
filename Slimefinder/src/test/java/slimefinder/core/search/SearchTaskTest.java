@@ -2,22 +2,27 @@ package slimefinder.core.search;
 
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import java.io.IOException;
+import java.util.LinkedList;
 
 import slimefinder.core.Mask;
+import slimefinder.io.CLI;
 import slimefinder.io.properties.MaskProperties;
 import slimefinder.io.properties.SearchProperties;
 import slimefinder.io.IDataLogger;
 import slimefinder.util.Position;
 
-import java.io.IOException;
-import java.util.LinkedList;
+import static org.junit.Assert.*;
+
+import static slimefinder.io.properties.MaskProperties.*;
+import static slimefinder.io.properties.SearchProperties.*;
 
 public class SearchTaskTest {
 
     private SearchProperties pSearch;
     private MaskProperties pMask;
     private TestDataLogger l;
+    private CLI cli;
 
     private class TestDataLogger implements IDataLogger {
 
@@ -28,7 +33,7 @@ public class SearchTaskTest {
         }
 
         @Override
-        public void start() throws IOException {
+        public void start(String filename, boolean append) throws IOException {
 
         }
 
@@ -45,31 +50,36 @@ public class SearchTaskTest {
 
     @Before
     public void setUp() {
+        this.cli = new CLI();
+
         pMask = new MaskProperties();
-        pMask.worldSeed = 0;
-        pMask.despawnSphere = true;
-        pMask.exclusionSphere = true;
-        pMask.chunkWeight = 0;
-        pMask.yOffset = 0;
+        pMask.setProperty(SEED, 0L);
+        pMask.setProperty(DESPAWN, true);
+        pMask.setProperty(EXCLUSION, true);
+        pMask.setProperty(WEIGHT, 0);
+        pMask.setProperty(OFFSET, 0);
 
         pSearch = new SearchProperties();
-        pSearch.posChunk = Position.origin();
-        pSearch.posIn = Position.origin();
-
+        pSearch.setProperty(CENTER_POS, new Position(0, 0));
         // Nothing is matched by default
-        pSearch.maxBlockSize = -1;
-        pSearch.minBlockSize = 0;
-        pSearch.maxChunkSize = -1;
-        pSearch.minChunkSize = 0;
+        pSearch.setProperty(MAX_BLOCK_SZ, -1);
+        pSearch.setProperty(MIN_BLOCK_SZ, 0);
+        pSearch.setProperty(MAX_CHUNK_SZ, -1);
+        pSearch.setProperty(MIN_CHUNK_SZ, 0);
+        pSearch.setProperty(FINE_SEARCH, false);
+        pSearch.setProperty(MAX_WIDTH, 1);
+        pSearch.setProperty(MIN_WIDTH, 0);
+        pSearch.setProperty(RESULTS, "");
+        pSearch.setProperty(APPEND, false);
 
         l = new TestDataLogger();
     }
 
     @Test
     public void totalPositionCountIsCorrect() {
-        pSearch.fineSearch = true;
-        pSearch.maxWidth = 5;
-        pSearch.minWidth = 2;
+        pSearch.setProperty(FINE_SEARCH, true);
+        pSearch.setProperty(MAX_WIDTH, 5);
+        pSearch.setProperty(MIN_WIDTH, 2);
         SearchTask search = new SearchTask(pSearch, pMask, l);
         search.run();
         assertEquals(256 * (5 * 5 - 2 * 2), search.positionsTotal());
@@ -78,69 +88,62 @@ public class SearchTaskTest {
 
     @Test
     public void chunkAndBlockCriteriaAreORd() {
-        pSearch.maxChunkSize = 30;
-        pSearch.minChunkSize = 20;
+        pSearch.setProperty(MAX_CHUNK_SZ, 30);
+        pSearch.setProperty(MIN_CHUNK_SZ,20);
 
-        pSearch.maxBlockSize = 7680;
-        pSearch.minBlockSize = 5120;
+        pSearch.setProperty(MAX_BLOCK_SZ, 7680);
+        pSearch.setProperty(MIN_BLOCK_SZ, 5120);
 
-        pSearch.minWidth = 0;
-        pSearch.maxWidth = 100;
+        pSearch.setProperty(MAX_WIDTH, 100);
 
         SearchTask search = new SearchTask(pSearch, pMask, l);
         search.run();
 
         for (Mask m : l.masks) {
             assertTrue(
-                (m.getBlockSize() <= pSearch.maxBlockSize && m.getBlockSize() >= pSearch.minBlockSize) ||
-                    (m.getChunkSize() <= pSearch.maxChunkSize && m.getChunkSize() >= pSearch.minChunkSize)
+                "The mask " + m + " should match search criteria",
+                (m.getBlockSize() <= 7680 && m.getBlockSize() >= 5120) ||
+                    (m.getChunkSize() <= 30 && m.getChunkSize() >= 20)
             );
         }
     }
 
     @Test
     public void rangeEdgesAreInclusive() {
-        pSearch.maxBlockSize = 6600;
-        pSearch.minBlockSize = 6600;
+        pSearch.setProperty(MAX_CHUNK_SZ, 22);
+        pSearch.setProperty(MIN_CHUNK_SZ,22);
 
-        pSearch.maxChunkSize = 22;
-        pSearch.minChunkSize = 22;
+        pSearch.setProperty(MAX_BLOCK_SZ, 6600);
+        pSearch.setProperty(MIN_BLOCK_SZ, 6600);
 
-        pSearch.minWidth = 0;
-        pSearch.maxWidth = 200;
-
+        pSearch.setProperty(MAX_WIDTH, 200);
 
         SearchTask search = new SearchTask(pSearch, pMask, l);
         search.run();
 
-        assertFalse(l.masks.isEmpty());
+        assertFalse(
+            "List of found mask positions shouldn't be empty",
+            l.masks.isEmpty()
+        );
     }
 
     @Test
     public void firstPositionIsExtremumInEverything() {
-        pSearch.posChunk.setPos(12, 40);
-        pSearch.posIn.setPos(7,4);
-        pSearch.minWidth = 0;
-        pSearch.maxWidth = 1;
+        Position center = new Position(12, 40, 7, 4);
+        pSearch.setProperty(CENTER_POS, center);
 
         SearchTask search = new SearchTask(pSearch, pMask, l);
         search.run();
 
-        Position start = new Position(pSearch.posChunk, pSearch.posIn);
-
-        assertEquals(start, search.getMaxBlock().posBlock);
-        assertEquals(start, search.getMinBlock().posBlock);
-        assertEquals(start, search.getMaxChunk().posBlock);
-        assertEquals(start, search.getMinChunk().posBlock);
+        assertEquals(center, search.getMaxBlock().pos);
+        assertEquals(center, search.getMinBlock().pos);
+        assertEquals(center, search.getMaxChunk().pos);
+        assertEquals(center, search.getMinChunk().pos);
     }
 
     @Test
     public void correctAmountOfMaskPositionsAreChecked() {
-        pSearch.minWidth = 0;
-        pSearch.maxWidth = 100;
-
-        pSearch.minChunkSize = 43;
-        pSearch.maxChunkSize = 289;
+        pSearch.setProperty(MAX_WIDTH, 100);
 
         SearchTask search = new SearchTask(pSearch, pMask, l);
         search.run();
@@ -150,23 +153,20 @@ public class SearchTaskTest {
 
     @Test
     public void largeSearchAreasDontCauseInvalidMatchesInFineSearches() {
-        pSearch.minWidth = 0;
-        pSearch.maxWidth = 38;
-
-        pSearch.fineSearch = true;
-        pSearch.minChunkSize = 43;
-        pSearch.maxChunkSize = 289;
-
+        pSearch.setProperty(MAX_WIDTH, 38);
+        pSearch.setProperty(FINE_SEARCH, true);
+        pSearch.setProperty(MAX_CHUNK_SZ, 289);
+        pSearch.setProperty(MIN_CHUNK_SZ,43);
         SearchTask search = new SearchTask(pSearch, pMask, l);
         search.run();
 
         for (Mask m: l.masks) {
             assertTrue(
-                m.getChunkSize() + ">=" + pSearch.minChunkSize,
-                m.getChunkSize() >= pSearch.minChunkSize
+                "chunk size should be >= 43 but was " + m.getChunkSize(),
+                m.getChunkSize() >= 43
             );
         }
 
-        if (l.masks.isEmpty()) assertTrue("", search.getMaxChunk().getChunkSize() < pSearch.minChunkSize);
+        if (l.masks.isEmpty()) assertTrue(search.getMaxChunk().getChunkSize() < 43);
     }
 }

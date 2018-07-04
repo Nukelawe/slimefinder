@@ -1,38 +1,28 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package slimefinder.core;
 
-import slimefinder.core.Mask;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import slimefinder.io.properties.MaskProperties;
 import slimefinder.util.Direction;
 import slimefinder.util.Position;
 
-/**
- *
- * @author Matias Ruotsalainen
- */
+import static org.junit.Assert.*;
+
+import static slimefinder.io.properties.MaskProperties.*;
+
 public class MaskTest {
     
     private MaskProperties pMask;
     
-    public MaskTest() {
-    }
-    
     @Before
     public void setUp() {
         pMask = new MaskProperties();
-        pMask.worldSeed = 0;
-        pMask.despawnSphere = true;
-        pMask.exclusionSphere = true;
-        pMask.chunkWeight = 0;
-        pMask.yOffset = 0;
+        pMask.setProperty(SEED, 0L);
+        pMask.setProperty(DESPAWN, true);
+        pMask.setProperty(EXCLUSION, true);
+        pMask.setProperty(WEIGHT, 0);
+        pMask.setProperty(OFFSET, 0);
     }
 
     @Test
@@ -40,29 +30,14 @@ public class MaskTest {
         Mask mChunk = new Mask(pMask, -1, 0, 1, 2);
         Mask mBlock = new Mask(pMask, -15, 2);
         
-        // Chunk positions
-        assertEquals(mBlock.posChunk, mChunk.posChunk);
-        
-        // Positions within chunk
-        assertEquals(mBlock.posIn, mChunk.posIn);
-        
-        // Block positions
-        assertEquals(mBlock.posBlock, mChunk.posBlock);
-        
+        // Position
+        assertEquals(mBlock.pos, mChunk.pos);
+
         // Sizes
         assertEquals(mBlock.getBlockSize(), mChunk.getBlockSize());
         assertEquals(mBlock.getChunkSize(), mChunk.getChunkSize());
         assertEquals(mBlock.getBlockSurfaceArea(), mChunk.getBlockSurfaceArea());
         assertEquals(mBlock.getChunkSurfaceArea(), mChunk.getChunkSurfaceArea());
-    }
-    
-    @Test
-    public void blockPosConstructorInitializesPositionsCorrectly() {
-        Mask m = new Mask(pMask, -15, 2);
-        
-        assertEquals(new Position(-1, 0), m.posChunk);
-        assertEquals(new Position(1, 2), m.posIn);
-        assertEquals(new Position(-15, 2), m.posBlock);
     }
     
     @Test
@@ -74,14 +49,14 @@ public class MaskTest {
         m.moveByChunk(Direction.NORTH);
         m.moveByChunk(Direction.WEST);
         m.moveByChunk(Direction.WEST);
-        assertEquals(new Position(-1, -1), m.posChunk);
+        assertEquals(new Position(-1, -1).chunk, m.pos.chunk);
     }
     
     @Test
     public void arbitraryMovementWorks() {
         Mask m = new Mask(pMask, 0, 0);
         m.moveTo(1, 2, 3, 4);
-        assertEquals(new Position(19, 36), m.posBlock);
+        assertEquals(new Position(19, 36), m.pos);
     }
     
     @Test
@@ -118,9 +93,8 @@ public class MaskTest {
             mStep.getBlockSize() == mJump.getBlockSize());
         for (int xChunk = -Mask.R_CHUNK; xChunk <= Mask.R_CHUNK; xChunk++) {
             for (int zChunk = -Mask.R_CHUNK; zChunk <= Mask.R_CHUNK; zChunk++) {
-                assertTrue(
-                    mStep.isSlimeChunk(xChunk, zChunk) + "==" + mJump.isSlimeChunk(xChunk, zChunk),
-                    mStep.isSlimeChunk(xChunk, zChunk) == mJump.isSlimeChunk(xChunk, zChunk)
+                assertEquals(
+                    mStep.isSlimeChunk(xChunk, zChunk), mJump.isSlimeChunk(xChunk, zChunk)
                 );
             }
         }

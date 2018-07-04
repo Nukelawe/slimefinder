@@ -1,12 +1,10 @@
 package slimefinder.util;
 
+import java.util.Objects;
+
 public final class Position {
 
-    public static Position origin() {
-        return new Position(0, 0);
-    }
-
-    public int x, z;
+    public Point block, chunk, in;
 
     /**
      * Creates a new Position object by reading a comma separated pair of
@@ -31,11 +29,16 @@ public final class Position {
         String[] z = coords[1].split(":", -1);
         try {
             if (x.length == 1 && z.length == 1) {
-                return new Position(Integer.parseInt(x[0]), Integer.parseInt(z[0]));
+                return new Position(
+                    Integer.parseInt(x[0]),
+                    Integer.parseInt(z[0])
+                );
             } else if (x.length == 2 && z.length == 2) {
                 return new Position(
-                        Integer.parseInt(x[0]) * 16 + Integer.parseInt(x[1]),
-                        Integer.parseInt(z[0]) * 16 + Integer.parseInt(z[1])
+                    Integer.parseInt(x[0]),
+                    Integer.parseInt(z[0]),
+                    Integer.parseInt(x[1]),
+                    Integer.parseInt(z[1])
                 );
             }
         } catch (NumberFormatException e) {
@@ -43,63 +46,65 @@ public final class Position {
         throw exception;
     }
 
-    public Position(int x, int z) {
-        setPos(x, z);
+    private Position() {
+        block = new Point(0, 0);
+        chunk = new Point(0, 0);
+        in = new Point(0, 0);
     }
 
-    public Position(Position pChunk, Position pIn) {
-        setPos(pChunk.x * 16 + pIn.x, pChunk.z * 16 + pIn.z);
+    public Position(int blockX, int blockZ) {
+        this();
+        setPos(blockX, blockZ);
+    }
+
+    public Position(int chunkX, int chunkZ, int inX, int inZ) {
+        this();
+        setPos(chunkX, chunkZ, inX, inZ);
+    }
+
+    public Position(Position pos) {
+        this(pos.chunk.x, pos.chunk.z, pos.in.x, pos.in.z);
+    }
+
+    public void setPos(int blockX, int blockZ) {
+        this.block.setPoint(blockX, blockZ);
+        this.chunk.setPoint(Math.floorDiv(blockX, 16), Math.floorDiv(blockZ, 16));
+        this.in.setPoint(blockX & 15, blockZ & 15);
+    }
+
+    public void setPos(int chunkX, int chunkZ, int inX, int inZ) {
+        this.block.setPoint(chunkX * 16 + inX, chunkZ * 16 + inZ);
+        this.chunk.setPoint(chunkX, chunkZ);
+        this.in.setPoint(inX, inZ);
+    }
+
+    public void setPos(Position pos) {
+        setPos(pos.block.x, pos.block.z);
     }
 
     /**
-     * Moves the position count steps in the direction specified
-     * @param count - amount of movement
+     * Moves the position blockCount blocks in the direction specified
      * @param d - direction of movement
      */
-    public void move(int count, Direction d) {
-        x += count * d.x;
-        z += count * d.z;
-    }
-
-    /**
-     * Sets the coordinates of the position object
-     * @param x
-     * @param z
-     */
-    public void setPos(int x, int z) {
-        this.x = x;
-        this.z = z;
+    public void moveBy(int blockCount, Direction d) {
+        setPos(block.x + d.x * blockCount, block.z + d.z * blockCount);
     }
 
     @Override
     public String toString() {
-        return x + "," + z;
+        return FormatHelper.blockFormat(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Position position = (Position) o;
+        return Objects.equals(block, position.block);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + x;
-        result = prime * result + z;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Position other = (Position) obj;
-        if (x != other.x) {
-            return false;
-        }
-        return z == other.z;
+        return Objects.hash(block);
     }
 }

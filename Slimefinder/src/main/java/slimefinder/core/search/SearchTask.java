@@ -5,11 +5,14 @@ import slimefinder.core.Mask;
 import slimefinder.core.TrackableTask;
 import slimefinder.io.properties.MaskProperties;
 import slimefinder.io.properties.SearchProperties;
+
+import static slimefinder.io.properties.SearchProperties.*;
 import static slimefinder.util.FormatHelper.*;
 
 import java.io.IOException;
 
 import slimefinder.io.IDataLogger;
+import slimefinder.util.Position;
 
 public class SearchTask extends TrackableTask {
 
@@ -23,15 +26,29 @@ public class SearchTask extends TrackableTask {
     private int progress;
     private boolean interrupted;
 
+    private final boolean fineSearch;
+    private final String resultsFile;
+    private final int minBlockSize, maxBlockSize, minChunkSize, maxChunkSize;
+    private final Position centerPos;
+
     public SearchTask(
-        SearchProperties searchProperties,
-        MaskProperties maskProperties,
+        SearchProperties pSearch,
+        MaskProperties pMask,
         IDataLogger logger
     ) {
-        this.pSearch = searchProperties;
-        this.pMask = maskProperties;
+        fineSearch = pSearch.getBoolean(FINE_SEARCH);
+        resultsFile = pSearch.getString(RESULTS);
+        minBlockSize = pSearch.getInt(MIN_BLOCK_SZ);
+        maxBlockSize = pSearch.getInt(MAX_BLOCK_SZ);
+        minChunkSize = pSearch.getInt(MIN_CHUNK_SZ);
+        maxChunkSize = pSearch.getInt(MAX_CHUNK_SZ);
+        centerPos = pSearch.getPosition(CENTER_POS);
+        int minWidth = pSearch.getInt(MIN_WIDTH);
+        int maxWidth = pSearch.getInt(MAX_WIDTH);
+        this.pSearch = pSearch;
+        this.pMask = pMask;
         this.logger = logger;
-        this.path = new SearchPath(pSearch.posChunk, pSearch.minWidth, pSearch.maxWidth);
+        this.path = new SearchPath(centerPos.chunk, minWidth, maxWidth);
     }
 
     /**
@@ -43,7 +60,7 @@ public class SearchTask extends TrackableTask {
         setStartTime();
         matches = 0;
         try {
-            logger.start();
+            logger.start(resultsFile, pSearch.getBoolean(APPEND));
             search();
         } catch (IOException | InterruptedException e) {
         } finally {
@@ -53,14 +70,14 @@ public class SearchTask extends TrackableTask {
     }
 
     private void search() throws IOException, InterruptedException {
-        if (pSearch.fineSearch) {
-            for (int xIn = 0; xIn < 16; xIn++) {
-                for (int zIn = 0; zIn < 16; zIn++) {
-                    chunkSearch(xIn, zIn);
+        if (fineSearch) {
+            for (int inX = 0; inX < 16; inX++) {
+                for (int inZ = 0; inZ < 16; inZ++) {
+                    chunkSearch(inX, inZ);
                 }
             }
         } else {
-            chunkSearch(pSearch.posIn.x, pSearch.posIn.z);
+            chunkSearch(centerPos.in.x, centerPos.in.z);
         }
     }
 
@@ -68,12 +85,12 @@ public class SearchTask extends TrackableTask {
      * Searches only one block position in each chunk. Never moves the mask
      * within the chunk.
      */
-    private void chunkSearch(int xIn, int zIn) throws IOException, InterruptedException {
+    private void chunkSearch(int inX, int inZ) throws IOException, InterruptedException {
         while (path.step()) {
             if (m == null) {
-                initializeMasks(xIn, zIn);
+                initializeMasks(inX, inZ);
             } else {
-                m.moveTo(path.getPosition().x, path.getPosition().z, xIn, zIn);
+                m.moveTo(path.getPoint().x, path.getPoint().z, inX, inZ);
                 ExtremumMask[] extrema = {maxBlock, maxChunk, minBlock, minChunk};
                 for (ExtremumMask extremum : extrema) if (extremum.needsUpdate(m)) extremum.moveTo(m);
             }
@@ -94,13 +111,13 @@ public class SearchTask extends TrackableTask {
      * properties.
      */
     private boolean matchesSearchCriteria(int chunkSize, int blockSize) {
-        boolean chunkSizeCriteria = chunkSize >= pSearch.minChunkSize && chunkSize <= pSearch.maxChunkSize;
-        boolean blockSizeCriteria = blockSize >= pSearch.minBlockSize && blockSize <= pSearch.maxBlockSize;
+        boolean chunkSizeCriteria = chunkSize >= minChunkSize && chunkSize <= maxChunkSize;
+        boolean blockSizeCriteria = blockSize >= minBlockSize && blockSize <= maxBlockSize;
         return chunkSizeCriteria || blockSizeCriteria;
     }
 
-    private void initializeMasks(int xIn, int zIn) {
-        m = new Mask(pMask, path.getPosition().x, path.getPosition().z, xIn, zIn);
+    private void initializeMasks(int inX, int inZ) {
+        m = new Mask(pMask, path.getPoint().x, path.getPoint().z, inX, inZ);
         maxBlock = new ExtremumMask(m) {
             @Override
             public boolean needsUpdate(Mask mask) { return this.getBlockSize() < mask.getBlockSize(); }
@@ -147,7 +164,7 @@ public class SearchTask extends TrackableTask {
      */
     public synchronized long positionsTotal() {
         long count = path.getPathLength();
-        if (pSearch.fineSearch) count *= 256;
+        if (fineSearch) count *= 256;
         return count;
     }
 
@@ -165,9 +182,9 @@ public class SearchTask extends TrackableTask {
     public String startInfo() {
         return
             "Searching mask positions with criteria: " +
-            pSearch.minBlockSize + " <= blockSize <= " + pSearch.maxBlockSize + " or " +
-            pSearch.minChunkSize + " <= chunkSize <= " + pSearch.maxChunkSize + LN +
-            "Saving results in file: '" + pSearch.resultsFile + "'";
+            minBlockSize + " <= blockSize <= " + maxBlockSize + " or " +
+            minChunkSize + " <= chunkSize <= " + maxChunkSize + LN +
+            "Saving results in file: '" + resultsFile + "'";
     }
 
     /**
@@ -198,12 +215,12 @@ public class SearchTask extends TrackableTask {
         return
             getDuration() / positionsChecked() + " nanoseconds per position" + LN +
             "smallest block size: " + minBlock.getBlockSize() + "/" + minBlock.getBlockSurfaceArea() + " at " +
-                chunkPos(minBlock) + " (" + blockPos(minBlock) + ")" + LN +
+                chunkFormat(minBlock.pos) + " (" + blockFormat(minBlock.pos) + ")" + LN +
             "largest  block size: " + maxBlock.getBlockSize() + "/" + maxBlock.getBlockSurfaceArea() + " at " +
-                chunkPos(maxBlock) + " (" + blockPos(maxBlock) + ")" + LN +
+                chunkFormat(maxBlock.pos) + " (" + blockFormat(maxBlock.pos) + ")" + LN +
             "smallest chunk size: " + minChunk.getChunkSize() + "/" + minChunk.getChunkSurfaceArea() + " at " +
-                chunkPos(minChunk) + " (" + blockPos(minChunk) + ")" + LN +
+                chunkFormat(minChunk.pos) + " (" + blockFormat(minChunk.pos) + ")" + LN +
             "largest  chunk size: " + maxChunk.getChunkSize() + "/" + maxChunk.getChunkSurfaceArea() + " at " +
-                chunkPos(maxChunk) + " (" + blockPos(maxChunk) + ")";
+                chunkFormat(maxChunk.pos) + " (" + blockFormat(maxChunk.pos) + ")";
     }
 }

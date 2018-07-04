@@ -4,7 +4,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import slimefinder.core.Mask;
-import slimefinder.io.properties.SearchProperties;
 import slimefinder.util.FormatHelper;
 
 import static slimefinder.util.FormatHelper.LN;
@@ -14,18 +13,16 @@ public class DataLogger implements IDataLogger {
     private FileWriter w;
     private static final String DELIMITER = ";";
     private CLI cli;
-    private SearchProperties pSearch;
     
-    public DataLogger(SearchProperties pSearch, CLI cli) {
+    public DataLogger(CLI cli) {
         this.cli = cli;
-        this.pSearch = pSearch;
     }
 
     @Override
     public void write(Mask m) throws IOException {
         write(
-            m.posBlock.toString(),
-            FormatHelper.chunkPos(m),
+            FormatHelper.blockFormat(m.pos),
+            FormatHelper.chunkFormat(m.pos),
             m.getBlockSize() + "/" + m.getBlockSurfaceArea(),
             m.getChunkSize() + "/" + m.getChunkSurfaceArea()
         );
@@ -55,14 +52,14 @@ public class DataLogger implements IDataLogger {
         }
     }
     
-    public void start() throws IOException {
+    public void start(String filename, boolean append) throws IOException {
         try {
-            w = new FileWriter(pSearch.resultsFile, pSearch.append);
+            w = new FileWriter(filename, append);
         } catch (IOException ex) {
             cli.error("Could not open the output file");
             throw ex;
         }
-        if (!pSearch.append)
+        if (!append)
             write("block-position", "chunk-position", "blockSize", "chunkSize");
     }
     

@@ -1,6 +1,7 @@
 package slimefinder.core.search;
 
 import slimefinder.util.Direction;
+import slimefinder.util.Point;
 import slimefinder.util.Position;
 
 public class SearchPath {
@@ -29,10 +30,10 @@ public class SearchPath {
     private long progress;
     
     /**
-     * The middle position of the spiral path. This is the starting position if 
+     * The middle point of the spiral path. This is the starting point if
      * not skipping any area in the middle (i.e. minWidth <= 0).
      */
-    private final Position centerPos;
+    private final Point center;
     
     /**
      * The direction of the next step
@@ -41,18 +42,18 @@ public class SearchPath {
 
     private boolean inProgress;
 
-    private Position position;
+    private Point point;
 
-    public SearchPath(Position centerPos, int minWidth, int maxWidth) {
+    public SearchPath(Point center, int minWidth, int maxWidth) {
         this.maxWidth = Math.max(0, maxWidth);
         this.minWidth = Math.max(0, minWidth);
-        this.centerPos = centerPos;
-        position = Position.origin();
+        this.center = center;
+        point = new Point(0, 0);
         init();
     }
 
     /**
-     * calculates the starting position and prepares path for stepping
+     * calculates the starting point and prepares path for stepping
      */
     private void init() {
         progress = 0;
@@ -78,7 +79,7 @@ public class SearchPath {
             turns = 1;
         }
         
-        position.setPos(centerPos.x + dx, centerPos.z + dz);
+        point.setPoint(center.x + dx, center.z + dz);
         inProgress = false;
     }
 
@@ -99,8 +100,8 @@ public class SearchPath {
     }
 
     /**
-     * Moves the position by 1 step along a spiral path around the starting
-     * position. The first step initializes the position.
+     * Moves the point by 1 step along a spiral path around the starting
+     * point. The first step initializes the point.
      * 
      * @return false when moving outside the search region, true otherwise.
      */
@@ -111,7 +112,7 @@ public class SearchPath {
             return maxWidth > minWidth;
         }
         
-        position.move(1, dir);
+        point.moveBy(1, dir);
         ++steps;
 
         if (edge >= maxWidth && steps >= edge) {
@@ -128,11 +129,11 @@ public class SearchPath {
     }
 
     /**
-     * @return current position on the path
+     * @return current point on the path
      */
-    public Position getPosition() {
+    public Point getPoint() {
         if (!inProgress) return null;
-        return position;
+        return point;
     }
     
     /**
