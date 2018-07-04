@@ -103,7 +103,7 @@ public class CLITest {
         cli.info("info");
         cli.printStartInfo(task);
 
-        assertEquals(LN + "info" + LN + "started", outContent.toString());
+        assertEquals(LN + "info" + LN + LN + "started", outContent.toString());
     }
 
     @Test
@@ -119,7 +119,7 @@ public class CLITest {
         cli.info("info");
         cli.printEndInfo(task);
 
-        assertEquals(LN + "info" + LN + "progressed" + LN + "ended     " + LN, outContent.toString());
+        assertEquals(LN + "info" + LN + "progressed" + LN + "ended     ", outContent.toString());
     }
 
     @Test
@@ -138,7 +138,7 @@ public class CLITest {
         cli.printStartInfo(task);
         cli.printProgress(task);
 
-        assertEquals(LN + "info" + LN + "started" + LN + "progressed", outContent.toString());
+        assertEquals(LN + "info" + LN + LN + "started" + LN + "progressed", outContent.toString());
     }
 
     @Test
@@ -155,7 +155,7 @@ public class CLITest {
         cli.printProgress(task);
         cli.printEndInfo(task);
 
-        assertEquals(LN + "progressed" + CR + "progressed" + LN + "ended     " + LN, outContent.toString());
+        assertEquals(LN + "progressed" + CR + "progressed" + LN + "ended     ", outContent.toString());
     }
 
 }

@@ -50,7 +50,7 @@ public class PropertyLoaderTest {
     public void doesntPrintWarningsWhenGeneratingPropertiesForTheFirstTime() {
         in = null; // InputStream is null when the property file doesn't exist
 
-        loader.readProperties(properties, in);
+        loader.read(properties, in);
 
         cli.flush();
         String str = stdout.toString();
@@ -68,7 +68,7 @@ public class PropertyLoaderTest {
             "property2=56" + LN
         ).getBytes());
 
-        loader.readProperties(properties, in);
+        loader.read(properties, in);
 
         cli.flush();
         String str = stdout.toString();
@@ -87,13 +87,13 @@ public class PropertyLoaderTest {
             "property3=unused" + LN
         ).getBytes());
 
-        loader.readProperties(properties, in);
+        loader.read(properties, in);
 
         cli.flush();
         String str = stdout.toString();
         assertEquals(
             LN + "Successfully loaded properties from file: '" + properties.filename + "'" +
-            LN + "WARNING: Unused property, 'property3' in '" + properties.filename + "'",
+            LN + "WARNING: Deleting unused property 'property3' in '" + properties.filename + "'",
             str
         );
     }
@@ -105,13 +105,13 @@ public class PropertyLoaderTest {
             "property2=56" + LN
         ).getBytes());
 
-        loader.readProperties(properties, in);
+        loader.read(properties, in);
 
         cli.flush();
         String str = stdout.toString();
         assertEquals(
             LN + "Successfully loaded properties from file: '" + properties.filename + "'" +
-            LN + "WARNING: property1 not specified. Using default (1)",
+            LN + "WARNING: 'property1' not specified. Using default 'property1=1'",
             str
         );
     }
@@ -130,7 +130,7 @@ public class PropertyLoaderTest {
         };
         in = null;
 
-        loader.readProperties(properties, in);
+        loader.read(properties, in);
 
         assertEquals(new Integer(43), properties.getInt("propertyInt"));
         assertEquals(new Long(43), properties.getLong("propertyLong"));
@@ -160,13 +160,32 @@ public class PropertyLoaderTest {
             "propertyString=test" + LN
         ).getBytes());
 
-        loader.readProperties(properties, in);
+        loader.read(properties, in);
 
         assertEquals(new Integer(43), properties.getInt("propertyInt"));
         assertEquals(new Long(43), properties.getLong("propertyLong"));
         assertEquals(true, properties.getBoolean("propertyBoolean"));
         assertEquals(new Position(43, 21).block, properties.getPosition("propertyPosition").block);
         assertEquals("test", properties.getString("propertyString"));
+    }
+
+    @Test
+    public void parsingErrorIsPrinted() {
+        in = new ByteArrayInputStream((
+            "#comment" + LN +
+            "property1=expr" + LN +
+            "property2=56" + LN
+        ).getBytes());
+
+        loader.read(properties, in);
+
+        cli.flush();
+        String str = stdout.toString();
+        assertEquals(
+            LN + "Successfully loaded properties from file: '" + properties.filename + "'" +
+            LN + "WARNING: 'expr' is not a valid value for 'property1'. Using default 'property1=1'",
+            str
+        );
     }
 
 
@@ -185,8 +204,8 @@ public class PropertyLoaderTest {
         };
         in = null;
 
-        loader.readProperties(properties, in);
-        loader.writeProperties(properties, out);
+        loader.read(properties, in);
+        loader.write(properties, out);
         String str = removeComments(out);
         assertEquals(
             "property8=8" + LN +
@@ -204,8 +223,8 @@ public class PropertyLoaderTest {
             "property1=20" + LN
         ).getBytes());
 
-        loader.readProperties(properties, in);
-        loader.writeProperties(properties, out);
+        loader.read(properties, in);
+        loader.write(properties, out);
         String str = removeComments(out);
         assertEquals(
             "property1=20" + LN +

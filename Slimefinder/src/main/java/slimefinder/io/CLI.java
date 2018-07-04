@@ -42,7 +42,7 @@ public class CLI {
     }
 
     public synchronized void printStartInfo(TrackableTask task) {
-        appendBuffer(task.startInfo());
+        appendBuffer(LN + task.startInfo());
         flush();
         allowRewrite = false;
     }
@@ -50,7 +50,7 @@ public class CLI {
     public synchronized void printEndInfo(TrackableTask task) {
         printProgress(task);
         appendBuffer(task.endInfo());
-        appendBuffer("");
+        allowRewrite = false;
         flush();
     }
 

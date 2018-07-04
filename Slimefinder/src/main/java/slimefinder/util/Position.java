@@ -84,10 +84,11 @@ public final class Position {
 
     /**
      * Moves the position blockCount blocks in the direction specified
-     * @param d - direction of movement
+     * @param blockCount
+     * @param direction
      */
-    public void moveBy(int blockCount, Direction d) {
-        setPos(block.x + d.x * blockCount, block.z + d.z * blockCount);
+    public void moveBy(int blockCount, Direction direction) {
+        setPos(block.x + direction.x * blockCount, block.z + direction.z * blockCount);
     }
 
     @Override

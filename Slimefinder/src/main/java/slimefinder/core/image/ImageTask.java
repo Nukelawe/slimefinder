@@ -127,7 +127,7 @@ public class ImageTask extends TrackableTask {
     public String startInfo() {
         return
             "Generating images of masks listed in file: '" + filename + "'" + LN +
-            "Saving generated images to: '" + outDir + "'";
+            "Saving generated images to directory: '" + outDir + "'";
     }
 
     /**
