@@ -1,17 +1,15 @@
 package slimefinder.core.image;
 
-import slimefinder.core.Mask;
-import slimefinder.core.TrackableTask;
-import slimefinder.io.CLI;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
-
 import javax.imageio.ImageIO;
 
+import slimefinder.core.Mask;
+import slimefinder.core.TrackableTask;
+import slimefinder.io.CLI;
 import slimefinder.io.properties.*;
 import slimefinder.util.Position;
 
@@ -144,8 +142,8 @@ public class ImageTask extends TrackableTask {
             imagesGenerated + " images generated, " +
             linesParsed + " lines parsed, " +
             parsingErrors + " errors, " +
-            formatTime(time) + " elapsed, " +
-            formatTime((long) (time / progress - time)) + " remaining";
+            timeFormat(time) + " elapsed, " +
+            timeFormat((long) (time / progress - time)) + " remaining";
     }
 
     /**

@@ -1,18 +1,17 @@
 package slimefinder.core.search;
 
+import java.io.IOException;
+
 import slimefinder.core.ExtremumMask;
 import slimefinder.core.Mask;
 import slimefinder.core.TrackableTask;
 import slimefinder.io.properties.MaskProperties;
 import slimefinder.io.properties.SearchProperties;
+import slimefinder.io.IDataLogger;
+import slimefinder.util.Position;
 
 import static slimefinder.io.properties.SearchProperties.*;
 import static slimefinder.util.FormatHelper.*;
-
-import java.io.IOException;
-
-import slimefinder.io.IDataLogger;
-import slimefinder.util.Position;
 
 public class SearchTask extends TrackableTask {
 
@@ -92,7 +91,7 @@ public class SearchTask extends TrackableTask {
             } else {
                 m.moveTo(path.getPoint().x, path.getPoint().z, inX, inZ);
                 ExtremumMask[] extrema = {maxBlock, maxChunk, minBlock, minChunk};
-                for (ExtremumMask extremum : extrema) if (extremum.needsUpdate(m)) extremum.moveTo(m);
+                for (ExtremumMask extremum : extrema) if (extremum.needsUpdate(m)) extremum.setPos(m);
             }
             if (matchesSearchCriteria(m.getChunkSize(), m.getBlockSize())) {
                 ++matches;
@@ -120,19 +119,19 @@ public class SearchTask extends TrackableTask {
         m = new Mask(pMask, path.getPoint().x, path.getPoint().z, inX, inZ);
         maxBlock = new ExtremumMask(m) {
             @Override
-            public boolean needsUpdate(Mask mask) { return this.getBlockSize() < mask.getBlockSize(); }
+            public boolean needsUpdate(Mask mask) { return this.blockSize < mask.getBlockSize(); }
         };
         minBlock = new ExtremumMask(m) {
             @Override
-            public boolean needsUpdate(Mask mask) { return this.getBlockSize() > mask.getBlockSize(); }
+            public boolean needsUpdate(Mask mask) { return this.blockSize > mask.getBlockSize(); }
         };
         maxChunk = new ExtremumMask(m) {
             @Override
-            public boolean needsUpdate(Mask mask) { return this.getChunkSize() < mask.getChunkSize(); }
+            public boolean needsUpdate(Mask mask) { return this.chunkSize < mask.getChunkSize(); }
         };
         minChunk = new ExtremumMask(m) {
             @Override
-            public boolean needsUpdate(Mask mask) { return this.getChunkSize() > mask.getChunkSize(); }
+            public boolean needsUpdate(Mask mask) { return this.chunkSize > mask.getChunkSize(); }
         };
     }
 
@@ -199,8 +198,8 @@ public class SearchTask extends TrackableTask {
             "[ " + String.format("%1$5.1f", progress * 100) + "% ]  " +
             matches() + " matches, " +
             checked + " of " + total + " positions checked, " +
-            formatTime(time) + " elapsed, " +
-            formatTime((long) (time / progress -  time)) + " remaining";
+            timeFormat(time) + " elapsed, " +
+            timeFormat((long) (time / progress -  time)) + " remaining";
     }
 
     /**
@@ -214,13 +213,13 @@ public class SearchTask extends TrackableTask {
         if (positionsChecked() <= 0) return "";
         return
             getDuration() / positionsChecked() + " nanoseconds per position" + LN +
-            "smallest block size: " + minBlock.getBlockSize() + "/" + minBlock.getBlockSurfaceArea() + " at " +
+            "smallest block size: " + minBlock.blockSize + "/" + minBlock.blockSurfaceArea + " at " +
                 chunkFormat(minBlock.pos) + " (" + blockFormat(minBlock.pos) + ")" + LN +
-            "largest  block size: " + maxBlock.getBlockSize() + "/" + maxBlock.getBlockSurfaceArea() + " at " +
+            "largest  block size: " + maxBlock.blockSize + "/" + maxBlock.blockSurfaceArea + " at " +
                 chunkFormat(maxBlock.pos) + " (" + blockFormat(maxBlock.pos) + ")" + LN +
-            "smallest chunk size: " + minChunk.getChunkSize() + "/" + minChunk.getChunkSurfaceArea() + " at " +
+            "smallest chunk size: " + minChunk.chunkSize + "/" + minChunk.chunkSurfaceArea + " at " +
                 chunkFormat(minChunk.pos) + " (" + blockFormat(minChunk.pos) + ")" + LN +
-            "largest  chunk size: " + maxChunk.getChunkSize() + "/" + maxChunk.getChunkSurfaceArea() + " at " +
+            "largest  chunk size: " + maxChunk.chunkSize + "/" + maxChunk.chunkSurfaceArea + " at " +
                 chunkFormat(maxChunk.pos) + " (" + blockFormat(maxChunk.pos) + ")";
     }
 }

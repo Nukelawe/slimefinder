@@ -2,14 +2,16 @@ package slimefinder.util;
 
 import java.util.Objects;
 
+/**
+ * Position represents a 2-dimensional position in a Minecraft world,
+ * storing its block, chunk and within-chunk coordinates.
+ */
 public final class Position {
 
     public Point block, chunk, in;
 
     /**
-     * Creates a new Position object by reading a comma separated pair of
-     * integers from a string
-     *
+     * Creates a new Position object by reading a string representation of a position
      * @param parseText - The string to be parsed
      * @return Position object parsed from the string, null if the string is
      * empty or only whitespace.
@@ -83,17 +85,10 @@ public final class Position {
     }
 
     /**
-     * Moves the position blockCount blocks in the direction specified
-     * @param blockCount
-     * @param direction
+     * Moves the position in the given direction by the given number of blocks
      */
     public void moveBy(int blockCount, Direction direction) {
         setPos(block.x + direction.x * blockCount, block.z + direction.z * blockCount);
-    }
-
-    @Override
-    public String toString() {
-        return FormatHelper.blockFormat(this);
     }
 
     @Override
@@ -107,5 +102,10 @@ public final class Position {
     @Override
     public int hashCode() {
         return Objects.hash(block);
+    }
+
+    @Override
+    public String toString() {
+        return FormatHelper.blockFormat(this);
     }
 }

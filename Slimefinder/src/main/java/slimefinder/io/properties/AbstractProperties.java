@@ -1,8 +1,8 @@
 package slimefinder.io.properties;
 
-import slimefinder.util.Position;
-
 import java.util.*;
+
+import slimefinder.util.Position;
 
 public abstract class AbstractProperties extends Properties {
 
@@ -17,6 +17,9 @@ public abstract class AbstractProperties extends Properties {
         setDefaults();
     }
 
+    /**
+     * @return enumeration for this properties-object determined by defaultValues insert order.
+     */
     @Override
     public Enumeration keys() {
         Enumeration keysEnum = super.keys();

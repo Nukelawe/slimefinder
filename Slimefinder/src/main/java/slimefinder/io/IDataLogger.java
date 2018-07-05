@@ -1,8 +1,8 @@
 package slimefinder.io;
 
-import slimefinder.core.Mask;
-
 import java.io.IOException;
+
+import slimefinder.core.Mask;
 
 public interface IDataLogger {
     void start(String filename, boolean append) throws IOException;

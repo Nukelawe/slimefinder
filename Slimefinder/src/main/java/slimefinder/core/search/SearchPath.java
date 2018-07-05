@@ -2,7 +2,6 @@ package slimefinder.core.search;
 
 import slimefinder.util.Direction;
 import slimefinder.util.Point;
-import slimefinder.util.Position;
 
 public class SearchPath {
     /**

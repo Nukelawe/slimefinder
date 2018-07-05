@@ -83,15 +83,6 @@ public class Mask {
         moveTo(chunkX, chunkZ, inX, inZ);
     }
 
-    /**
-     * Creates a new mask with the properties of m at the position of m.
-     * @param m
-     */
-    public Mask(Mask m) {
-        this(m.pMask);
-        moveTo(m);
-    }
-
     public void moveTo(int blockX, int blockZ) {
         needsWeightUpdate = needsWeightUpdate || !(pos.in.x == (blockX & 15) && pos.in.z == (blockZ & 15));
         needsSizeUpdate = needsSizeUpdate || !(pos.block.x == blockX && pos.block.z == blockZ);
@@ -108,20 +99,6 @@ public class Mask {
 
     public void moveTo(Position to) {
         moveTo(to.chunk.x, to.chunk.z, to.in.x, to.in.z);
-    }
-
-    /**
-     * Sets the position of this mask to that of m. Copies all mask properties from m.
-     * The weights and slime chunk neighborhood are not updated.
-     *
-     * @param m
-     */
-    public void moveTo(Mask m) {
-        pos.setPos(m.pos);
-        blockSize = m.blockSize;
-        chunkSize = m.chunkSize;
-        blockSurfaceArea = m.blockSurfaceArea;
-        chunkSurfaceArea = m.chunkSurfaceArea;
     }
 
     /**
