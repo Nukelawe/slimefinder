@@ -2,6 +2,9 @@ package slimefinder.util;
 
 import java.util.Objects;
 
+/**
+ * Represents 2 dimensional integer coordinates.
+ */
 public class Point {
 
     public int x;
@@ -25,8 +28,11 @@ public class Point {
         this.z = point.z;
     }
 
-    public void moveBy(int count, Direction d) {
-        setPoint(x + count * d.x, z + count * d.z);
+    /**
+     * Move this point in the given direction by the given amount
+     */
+    public void moveBy(int count, Direction direction) {
+        setPoint(x + count * direction.x, z + count * direction.z);
     }
 
     @Override

@@ -1,19 +1,25 @@
 package slimefinder.util;
 
+/**
+ * This class defines objects representing the 4 cardinal directions.
+ */
 public class Direction {
 
     /**
      * 1,0
      */
     public static final Direction EAST = new Direction(1, 0);
+
     /**
      * 0,1
      */
     public static final Direction SOUTH = new Direction(0, 1);
+
     /**
      * -1,0
      */
     public static final Direction WEST = new Direction(-1, 0);
+
     /**
      * 0,-1
      */

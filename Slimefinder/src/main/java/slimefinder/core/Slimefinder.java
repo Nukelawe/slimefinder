@@ -91,7 +91,7 @@ public class Slimefinder {
         try {
             do {
                 cli.printProgress(task);
-                Thread.sleep(50);
+                Thread.sleep(100);
             } while (taskThread.isAlive());
         } catch (InterruptedException ie) {
         }

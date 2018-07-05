@@ -1,6 +1,5 @@
 package slimefinder.core;
 
-
 import java.time.Duration;
 import java.time.Instant;
 

@@ -1,20 +1,11 @@
 package slimefinder.util;
 
-import slimefinder.core.Mask;
-
 public class FormatHelper {
 
-    /**
-     * System-independent newline character
-     */
     public static final String LN = String.format("%n");
-
-    /**
-     * Carriage return character
-     */
     public static final String CR = "\r";
 
-    public static String formatTime(long nanos) {
+    public static String timeFormat(long nanos) {
         long millis = nanos / 1000000;
         long secs = millis / 1000;
         long mins = secs / 60;
