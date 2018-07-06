@@ -93,7 +93,7 @@ public class PropertyLoaderTest {
         String str = stdout.toString();
         assertEquals(
             LN + "Successfully loaded properties from file: '" + properties.filename + "'" +
-            LN + "WARNING: Deleting unused property 'property3' in '" + properties.filename + "'",
+            LN + CLI.WARNING_PREFIX + "Deleting unused property 'property3' in '" + properties.filename + "'",
             str
         );
     }
@@ -111,7 +111,7 @@ public class PropertyLoaderTest {
         String str = stdout.toString();
         assertEquals(
             LN + "Successfully loaded properties from file: '" + properties.filename + "'" +
-            LN + "WARNING: 'property1' not specified. Using default 'property1=1'",
+            LN + CLI.WARNING_PREFIX + "'property1' not specified. Using default 'property1=1'",
             str
         );
     }
@@ -183,7 +183,7 @@ public class PropertyLoaderTest {
         String str = stdout.toString();
         assertEquals(
             LN + "Successfully loaded properties from file: '" + properties.filename + "'" +
-            LN + "WARNING: 'expr' is not a valid value for 'property1'. Using default 'property1=1'",
+            LN + CLI.WARNING_PREFIX + "'expr' is not a valid value for 'property1'. Using default 'property1=1'",
             str
         );
     }

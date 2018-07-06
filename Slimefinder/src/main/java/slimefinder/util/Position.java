@@ -106,6 +106,6 @@ public final class Position {
 
     @Override
     public String toString() {
-        return FormatHelper.blockFormat(this);
+        return chunk.x + ":" + in.x + "," + chunk.z + ":" + in.z;
     }
 }

@@ -2,7 +2,7 @@ package slimefinder.io.properties;
 
 import slimefinder.util.Position;
 
-import static slimefinder.core.Mask.R_CHUNK;
+import static slimefinder.core.mask.Mask.R_CHUNK;
 
 public class SearchProperties extends AbstractProperties {
     

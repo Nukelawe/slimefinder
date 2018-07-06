@@ -1,11 +1,11 @@
-package slimefinder.core;
+package slimefinder.core.mask;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import slimefinder.io.properties.MaskProperties;
 import slimefinder.util.Direction;
-import slimefinder.util.Position;
+import slimefinder.util.Point;
 
 import static org.junit.Assert.*;
 
@@ -24,46 +24,33 @@ public class MaskTest {
         pMask.setProperty(WEIGHT, 0);
         pMask.setProperty(OFFSET, 0);
     }
-
-    @Test
-    public void chunkAndBlockConstructorsGiveSameMasks() {
-        Mask mChunk = new Mask(pMask, -1, 0, 1, 2);
-        Mask mBlock = new Mask(pMask, -15, 2);
-        
-        // Position
-        assertEquals(mBlock.pos, mChunk.pos);
-
-        // Sizes
-        assertEquals(mBlock.getBlockSize(), mChunk.getBlockSize());
-        assertEquals(mBlock.getChunkSize(), mChunk.getChunkSize());
-        assertEquals(mBlock.getBlockSurfaceArea(), mChunk.getBlockSurfaceArea());
-        assertEquals(mBlock.getChunkSurfaceArea(), mChunk.getChunkSurfaceArea());
-    }
     
     @Test
     public void orthogonalChunkMovementWorks() {
-        Mask m = new Mask(pMask, 0, 0);
+        Mask m = new Mask(pMask, 0, 0, 1, 2);
         m.moveByChunk(Direction.SOUTH);
         m.moveByChunk(Direction.EAST);
         m.moveByChunk(Direction.NORTH);
         m.moveByChunk(Direction.NORTH);
         m.moveByChunk(Direction.WEST);
         m.moveByChunk(Direction.WEST);
-        assertEquals(new Position(-1, -1).chunk, m.pos.chunk);
+        assertEquals(new Point(-1, -1), m.chunk);
+        assertEquals(new Point(1, 2), m.in);
     }
     
     @Test
     public void arbitraryMovementWorks() {
-        Mask m = new Mask(pMask, 0, 0);
+        Mask m = new Mask(pMask, 0, 0, 0, 0);
         m.moveTo(1, 2, 3, 4);
-        assertEquals(new Position(19, 36), m.pos);
+        assertEquals(new Point(1, 2), m.chunk);
+        assertEquals(new Point(3, 4), m.in);
     }
     
     @Test
     public void surfaceAreaIsCorrect() {
         Mask m = new Mask(pMask, 0, 0, 0, 0);
-        assertEquals(49640, m.getBlockSurfaceArea());
-        assertEquals(222, m.getChunkSurfaceArea());
+        assertEquals(49640, m.blockSurfaceArea);
+        assertEquals(222, m.chunkSurfaceArea);
     }
 
     @Test
@@ -88,9 +75,7 @@ public class MaskTest {
             mStep.moveByChunk(direction);
         }
         mJump.moveTo(1,4,0,0);
-        assertTrue(
-            mStep.getBlockSize() + "==" + mJump.getBlockSize(),
-            mStep.getBlockSize() == mJump.getBlockSize());
+        assertEquals(mStep.blockSize, mJump.blockSize);
         for (int xChunk = -Mask.R_CHUNK; xChunk <= Mask.R_CHUNK; xChunk++) {
             for (int zChunk = -Mask.R_CHUNK; zChunk <= Mask.R_CHUNK; zChunk++) {
                 assertEquals(

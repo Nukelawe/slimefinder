@@ -2,20 +2,23 @@ package slimefinder.core.search;
 
 import org.junit.Before;
 import org.junit.Test;
-import java.io.IOException;
+
 import java.util.LinkedList;
 
-import slimefinder.core.Mask;
+import slimefinder.core.mask.Mask;
+import slimefinder.core.mask.MaskData;
 import slimefinder.io.CLI;
 import slimefinder.io.properties.MaskProperties;
 import slimefinder.io.properties.SearchProperties;
 import slimefinder.io.IDataLogger;
+import slimefinder.util.FormatHelper;
 import slimefinder.util.Position;
 
 import static org.junit.Assert.*;
 
 import static slimefinder.io.properties.MaskProperties.*;
 import static slimefinder.io.properties.SearchProperties.*;
+import static slimefinder.util.FormatHelper.LN;
 
 public class SearchTaskTest {
 
@@ -26,14 +29,14 @@ public class SearchTaskTest {
 
     private class TestDataLogger implements IDataLogger {
 
-        public LinkedList<Mask> masks;
+        public LinkedList<MaskData> masks;
 
         public TestDataLogger() {
             masks = new LinkedList<>();
         }
 
         @Override
-        public void start(String filename, boolean append) throws IOException {
+        public void start(String filename, boolean append) {
 
         }
 
@@ -43,8 +46,8 @@ public class SearchTaskTest {
         }
 
         @Override
-        public void write(Mask m) throws IOException {
-            masks.add(new Mask(m));
+        public void write(Mask m) {
+            masks.add(new MaskData(m) {});
         }
     }
 
@@ -99,11 +102,11 @@ public class SearchTaskTest {
         SearchTask search = new SearchTask(pSearch, pMask, l);
         search.run();
 
-        for (Mask m : l.masks) {
+        for (MaskData m : l.masks) {
             assertTrue(
                 "The mask " + m + " should match search criteria",
-                (m.getBlockSize() <= 7680 && m.getBlockSize() >= 5120) ||
-                    (m.getChunkSize() <= 30 && m.getChunkSize() >= 20)
+                (m.blockSize <= 7680 && m.blockSize >= 5120) ||
+                    (m.chunkSize <= 30 && m.chunkSize >= 20)
             );
         }
     }
@@ -132,13 +135,31 @@ public class SearchTaskTest {
         Position center = new Position(12, 40, 7, 4);
         pSearch.setProperty(CENTER_POS, center);
 
+        Mask extremum = new Mask(pMask, 12, 40, 7, 4);
+
         SearchTask search = new SearchTask(pSearch, pMask, l);
         search.run();
 
-        assertEquals(center, search.getMaxBlock().pos);
-        assertEquals(center, search.getMinBlock().pos);
-        assertEquals(center, search.getMaxChunk().pos);
-        assertEquals(center, search.getMinChunk().pos);
+        assertTrue(
+            "Expected: " + FormatHelper.formatMaskData(extremum) +
+            LN + " was: " + LN + FormatHelper.formatMaskData(search.getMaxBlock()),
+            equals(search.getMaxBlock(), extremum)
+        );
+        assertTrue(
+            "Expected: " + FormatHelper.formatMaskData(extremum) +
+            LN + " was: " + LN + FormatHelper.formatMaskData(search.getMinBlock()),
+            equals(search.getMinBlock(), extremum)
+        );
+        assertTrue(
+            "Expected: " + FormatHelper.formatMaskData(extremum) +
+            LN + " was: " + LN + FormatHelper.formatMaskData(search.getMaxChunk()),
+            equals(search.getMaxChunk(), extremum)
+        );
+        assertTrue(
+            "Expected: " + FormatHelper.formatMaskData(extremum) +
+            LN + " was: " + LN + FormatHelper.formatMaskData(search.getMinChunk()),
+            equals(search.getMinChunk(), extremum)
+        );
     }
 
     @Test
@@ -160,13 +181,23 @@ public class SearchTaskTest {
         SearchTask search = new SearchTask(pSearch, pMask, l);
         search.run();
 
-        for (Mask m: l.masks) {
+        for (MaskData m: l.masks) {
             assertTrue(
-                "chunk size should be >= 43 but was " + m.getChunkSize(),
-                m.getChunkSize() >= 43
+                "chunk size should be >= 43 but was " + m.chunkSize,
+                m.chunkSize >= 43
             );
         }
 
-        if (l.masks.isEmpty()) assertTrue(search.getMaxChunk().getChunkSize() < 43);
+        if (l.masks.isEmpty()) assertTrue(search.getMaxChunk().chunkSize < 43);
+    }
+
+    private boolean equals(MaskData m1, MaskData data) {
+        return
+            m1.chunk.equals(data.chunk) &&
+            m1.in.equals(data.in) &&
+            m1.blockSize == data.blockSize &&
+            m1.chunkSize == data.chunkSize &&
+            m1.blockSurfaceArea == data.blockSurfaceArea &&
+            m1.chunkSurfaceArea == data.chunkSurfaceArea;
     }
 }

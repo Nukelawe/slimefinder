@@ -95,7 +95,7 @@ public class CLITest {
         cli.error("error");
         cli.flush();
 
-        assertEquals(LN + "info" + LN + "WARNING: warning" + LN + "ERROR: error", outContent.toString());
+        assertEquals(LN + "info" + LN + CLI.WARNING_PREFIX + "warning" + LN + CLI.ERROR_PREFIX + "error", outContent.toString());
     }
 
     @Test

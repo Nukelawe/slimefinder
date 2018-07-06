@@ -3,7 +3,7 @@ package slimefinder.core.image;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-import slimefinder.core.Mask;
+import slimefinder.core.mask.Mask;
 import slimefinder.io.properties.ImageProperties;
 
 import static slimefinder.io.properties.ImageProperties.*;
@@ -92,7 +92,7 @@ public class ImageGenerator {
                                 }
 
                                 // Center marker
-                                if (drawCenter && isCenter(xChunk, zChunk, xIn - m.pos.in.x, zIn - m.pos.in.z, centerMarkerWidth, centerMarkerThickness)) {
+                                if (drawCenter && isCenter(xChunk, zChunk, xIn - m.in.x, zIn - m.in.z, centerMarkerWidth, centerMarkerThickness)) {
                                     buff.setRGB(x, z, centerColor.getRGB());
                                 }
                             }

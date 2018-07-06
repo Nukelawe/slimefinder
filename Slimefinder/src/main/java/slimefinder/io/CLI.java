@@ -10,8 +10,17 @@ import static slimefinder.util.FormatHelper.CR;
  */
 public class CLI {
 
+    public static String ERROR_PREFIX = "ERROR: ";
+    public static String WARNING_PREFIX = "WARNING: ";
+
+    /**
+     * Stores the characters waiting to be printed to stdout
+     */
     private StringBuffer printBuffer;
 
+    /**
+     * True if overwriting the previously written line is allowed
+     */
     private boolean allowRewrite;
 
     /**
@@ -50,11 +59,11 @@ public class CLI {
     public synchronized void printEndInfo(TrackableTask task) {
         printProgress(task);
         appendBuffer(task.endInfo());
-        allowRewrite = false;
         flush();
+        allowRewrite = false;
     }
 
-    public synchronized void printHelp() {
+    public void printHelp() {
         info(
             "-h" + LN  +
             "  Display this message" + LN +
@@ -73,16 +82,16 @@ public class CLI {
     }
 
     public synchronized void warning(String warning) {
-        appendBuffer("WARNING: " + warning);
+        appendBuffer(WARNING_PREFIX + warning);
     }
 
     public synchronized void error(String error) {
-        appendBuffer("ERROR: " + error);
+        appendBuffer(ERROR_PREFIX + error);
     }
 
     private void appendBuffer(String line) {
         printBuffer.append(printBuffer.length() > 0 ? LN : "");
-        StringBuffer extendedLine = new StringBuffer(line);
+        StringBuilder extendedLine = new StringBuilder(line);
         while (extendedLine.length() < lineWidth) extendedLine.append(" ");
         printBuffer.append(extendedLine);
         lineWidth = 0;
