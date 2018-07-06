@@ -1,5 +1,7 @@
 package slimefinder.util;
 
+import slimefinder.core.mask.MaskData;
+
 public class FormatHelper {
 
     public static final String LN = String.format("%n");
@@ -13,11 +15,34 @@ public class FormatHelper {
         return String.format("%1$02d:%2$02d:%3$02d", hours, mins % 60, secs % 60);
     }
 
-    public static String chunkFormat(Position pos) {
-        return pos.chunk.x + ":" + pos.in.x + "," + pos.chunk.z + ":" + pos.in.z;
+    /**
+     * If exact position is known:      14:5,-2:0
+     * If only chunk position is known: 14:*,-2:*
+     */
+    public static String chunkPosFormat(Point chunk, Point in) {
+        if (in == null) return
+            chunk.x + ":*" + "," + chunk.z + ":*";
+        return
+            chunk.x + ":" + in.x + "," + chunk.z + ":" + in.z;
     }
 
-    public static String blockFormat(Position pos) {
-        return pos.block.x + "," + pos.block.z;
+    /**
+     * If exact position is known:      -44,12
+     * If only chunk position is known: -48,0 to -33,15
+     */
+    public static String blockPosFormat(Point chunk, Point in) {
+        if (in == null) return
+            chunk.x * 16 + "," + chunk.z * 16 +
+            " to " + ((chunk.x + 1) * 16 - 1) + "," + ((chunk.z + 1) * 16 - 1);
+        return
+            (chunk.x * 16 + in.x) + "," + (chunk.z * 16 + in.z);
+    }
+
+    public static String formatMaskData(MaskData m) {
+        return
+            FormatHelper.blockPosFormat(m.chunk, m.in) + LN +
+            FormatHelper.chunkPosFormat(m.chunk, m.in) + LN +
+            m.blockSize + "/" + m.blockSurfaceArea + LN +
+            m.chunkSize + "/" + m.chunkSurfaceArea;
     }
 }

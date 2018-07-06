@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Scanner;
 import javax.imageio.ImageIO;
 
-import slimefinder.core.Mask;
+import slimefinder.core.mask.Mask;
 import slimefinder.core.TrackableTask;
 import slimefinder.io.CLI;
 import slimefinder.io.properties.*;
@@ -60,7 +60,7 @@ public class ImageTask extends TrackableTask {
     public void run() {
         setStartTime();
         try {
-            Mask mask = new Mask(pSlime, 0, 0);
+            Mask mask = new Mask(pSlime, 0, 0, 0, 0);
             while (scanner.hasNextLine()) {
                 Position pBlock = readLine(scanner.nextLine());
                 if (pBlock == null) continue;
@@ -113,9 +113,9 @@ public class ImageTask extends TrackableTask {
 
     private static String getFilename(Mask m) {
         return
-            m.pos.block.x + "x_" + m.pos.block.z + "z_"
-            + m.getChunkSize() + "c" + m.getChunkSurfaceArea() + "_"
-            + m.getBlockSize() + "b" + m.getBlockSurfaceArea() + ".png";
+            (m.chunk.x * 16 + m.in.x) + "x_" + (m.chunk.z * 16 + m.in.z) + "z_"
+            + m.chunkSize + "c" + m.chunkSurfaceArea + "_"
+            + m.blockSize + "b" + m.blockSurfaceArea + ".png";
     }
 
     /**
