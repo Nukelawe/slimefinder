@@ -84,7 +84,7 @@ public class Slimefinder {
         Thread taskThread = new Thread(task);
         Thread interrupter = new Thread(() -> {
             Scanner scanner = new Scanner(System.in);
-            while(!task.isInterrupted) {
+            while(!task.isInterrupted && !task.isFinished) {
                 try {
                     if (System.in.available() > 0) {
                         String command = scanner.next();
