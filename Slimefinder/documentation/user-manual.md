@@ -102,14 +102,17 @@ If **``fine-search``** option is set to ``true`` all block positions in each chu
 
 The matching positions found are written on a file specified by the **``output-file``**-field. If the file does not exist a new one with the given name will be created if possible. Unless **``append``** is set to true an existing output file will be overwritten without a warning! The output-file can also contain a path to a directory.
 
-Every line in the output file containing no data should either start with a # or consist of whitespace only. This is important for the file to be readable when used as an input for the image generation mode. The output file is formatted as a .csv-file with ``;`` as a delimiter. Each line in the output file describes a single position. here is an example of an output file:
+Every line in the output file containing no data should either start with a # or consist of whitespace only. This is important for the file to be readable when used as an input for the image generation mode. The output file is formatted as a .csv-file with ``;`` as a delimiter. Each line in the output file describes a single position. The block and chunk coordinates are formatted in the csv-files exactly like in the **``center-pos``**-field. The block and chunk size are appended with the surface area of the corresponding mask, which is essentially the maximum possible size.
+
+Here is an example of an output file:
 ```
 block-position;chunk-position;blockSize;chunkSize
 0,0;0c0,0c0;4005/49640;18/222
 #this is a comment
 ```
-The block and chunk coordinates are formatted in the csv-files exactly like in the **``center-pos``**-field.
-The block and chunk size are the appended by the surface area of the corresponding mask, which is essentially the maximum possible size.
+The first line is the header.
+The second line represents a mask at position ``0,0`` with a block size of ``4005``, block surface area of ``49640``, chunk size of ``18`` and chunk surface area of ``222``.
+The third line is a comment that will be ignored when the file is read in the image generation mode. The search mode does not generate any comments.
 
 ## image.properties
 
