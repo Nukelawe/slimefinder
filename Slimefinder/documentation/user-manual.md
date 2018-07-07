@@ -40,9 +40,10 @@ the following fields:
 
 The y-coordinate is specified relative to P with the property **``y-offset``**. For example with **``y-offset=-16``**,  a mask would represent the set of block positions 16 blocks below the player where hostile mobs could spawn.
 
-**``Despawn sphere``** is a sphere of radius 128 blocks centered around a player outside which a slime would instantly despawn. Although it probably is not of much use, you can disable the despawn sphere check by setting this property to false which would make all the blocks in the 17x17 chunk area around the player to be included.
+**Despawn sphere** is a sphere of radius 128 blocks centered around a player outside which a slime would instantly despawn. Although it probably is not of much use, you can disable the despawn sphere check by setting the property **``despawn-sphere``** to false which would make all the blocks in the 17x17 chunk area around the player to be included.
 
-**``Exclusion sphere``** is a sphere of radius 24 centered around a player inside which mobs cannot spawn. Disabling the exclusion sphere can be done by setting this proeprty to false, which might be needed in some cases where some player movement is needed at the center of a perimeter.
+**Exclusion sphere** is a sphere of radius 24 centered around a player inside which mobs cannot spawn. 
+Disabling the exclusion sphere can be done by setting the property **``exclusion-sphere``** to false, which might be needed in some cases where some player movement is expected at the center of a perimeter.
 
 How the block mask is calculated from the mask components, despawn sphere and exclusion sphere, is illustrated below.
 
