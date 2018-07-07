@@ -75,7 +75,7 @@ The file **``search.properties``** defines the parameters necessary for the sear
 
 | property | type | default value |
 |:--- |:--- |:---|
-| **``append | booean``** | ``false`` |
+| **``append``** | booean | ``false`` |
 | **``fine-search``** | boolean | ``false`` |
 | **``output-file``** | string | ``results.csv`` |
 | **``center-pos``** | coordinate | ``0c0,0c0`` |
