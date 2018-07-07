@@ -2,6 +2,9 @@ package slimefinder.util;
 
 
 import static org.junit.Assert.*;
+import static slimefinder.util.FormatHelper.CHUNK_SEP;
+import static slimefinder.util.FormatHelper.COORD_SEP;
+
 import org.junit.*;
 
 public class PositionTest {
@@ -28,7 +31,7 @@ public class PositionTest {
 
         assertEquals(new Position(-1000, 1000), Position.parsePos("-1000,1000"));
         assertEquals(new Position(15, -50), Position.parsePos("\t  15,-50 \t "));
-        assertEquals(new Position(3 * 16 + 3, -2 * 16 + 15), Position.parsePos("3:3,-2:15"));
+        assertEquals(new Position(3 * 16 + 3, -2 * 16 + 15), Position.parsePos("3" + CHUNK_SEP + "3" + COORD_SEP + "-2" + CHUNK_SEP + "15"));
     }
 
     @Test

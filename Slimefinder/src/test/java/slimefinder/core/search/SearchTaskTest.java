@@ -3,6 +3,7 @@ package slimefinder.core.search;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.LinkedList;
 
 import slimefinder.core.mask.Mask;
@@ -46,7 +47,7 @@ public class SearchTaskTest {
         }
 
         @Override
-        public void write(Mask m) {
+        public void write(MaskData m) {
             masks.add(new MaskData(m) {});
         }
     }
@@ -79,7 +80,7 @@ public class SearchTaskTest {
     }
 
     @Test
-    public void totalPositionCountIsCorrect() {
+    public void totalPositionCountIsCorrect() throws IOException {
         pSearch.setProperty(FINE_SEARCH, true);
         pSearch.setProperty(MAX_WIDTH, 5);
         pSearch.setProperty(MIN_WIDTH, 2);
@@ -90,7 +91,7 @@ public class SearchTaskTest {
     }
 
     @Test
-    public void chunkAndBlockCriteriaAreORd() {
+    public void chunkAndBlockCriteriaAreORd() throws IOException {
         pSearch.setProperty(MAX_CHUNK_SZ, 30);
         pSearch.setProperty(MIN_CHUNK_SZ,20);
 
@@ -112,7 +113,7 @@ public class SearchTaskTest {
     }
 
     @Test
-    public void rangeEdgesAreInclusive() {
+    public void rangeEdgesAreInclusive() throws IOException {
         pSearch.setProperty(MAX_CHUNK_SZ, 22);
         pSearch.setProperty(MIN_CHUNK_SZ,22);
 
@@ -131,7 +132,7 @@ public class SearchTaskTest {
     }
 
     @Test
-    public void firstPositionIsExtremumInEverything() {
+    public void firstPositionIsExtremumInEverything() throws IOException {
         Position center = new Position(12, 40, 7, 4);
         pSearch.setProperty(CENTER_POS, center);
 
@@ -163,7 +164,7 @@ public class SearchTaskTest {
     }
 
     @Test
-    public void correctAmountOfMaskPositionsAreChecked() {
+    public void correctAmountOfMaskPositionsAreChecked() throws IOException {
         pSearch.setProperty(MAX_WIDTH, 100);
 
         SearchTask search = new SearchTask(pSearch, pMask, l);
@@ -173,7 +174,7 @@ public class SearchTaskTest {
     }
 
     @Test
-    public void largeSearchAreasDontCauseInvalidMatchesInFineSearches() {
+    public void largeSearchAreasDontCauseInvalidMatchesInFineSearches() throws IOException {
         pSearch.setProperty(MAX_WIDTH, 38);
         pSearch.setProperty(FINE_SEARCH, true);
         pSearch.setProperty(MAX_CHUNK_SZ, 289);

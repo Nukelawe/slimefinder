@@ -6,6 +6,8 @@ public class FormatHelper {
 
     public static final String LN = String.format("%n");
     public static final String CR = "\r";
+    public static final String CHUNK_SEP = "c";
+    public static final String COORD_SEP = ",";
 
     public static String timeFormat(long nanos) {
         long millis = nanos / 1000000;
@@ -16,14 +18,14 @@ public class FormatHelper {
     }
 
     /**
-     * If exact position is known:      14:5,-2:0
-     * If only chunk position is known: 14:*,-2:*
+     * If exact position is known:      14c5,-2c0
+     * If only chunk position is known: 14c,-2c
      */
     public static String chunkPosFormat(Point chunk, Point in) {
         if (in == null) return
-            chunk.x + ":*" + "," + chunk.z + ":*";
+            chunk.x + CHUNK_SEP + COORD_SEP + chunk.z + CHUNK_SEP;
         return
-            chunk.x + ":" + in.x + "," + chunk.z + ":" + in.z;
+            chunk.x + CHUNK_SEP + in.x + COORD_SEP + chunk.z + CHUNK_SEP + in.z;
     }
 
     /**
@@ -32,10 +34,10 @@ public class FormatHelper {
      */
     public static String blockPosFormat(Point chunk, Point in) {
         if (in == null) return
-            chunk.x * 16 + "," + chunk.z * 16 +
-            " to " + ((chunk.x + 1) * 16 - 1) + "," + ((chunk.z + 1) * 16 - 1);
+            chunk.x * 16 + COORD_SEP + chunk.z * 16 +
+            " to " + ((chunk.x + 1) * 16 - 1) + COORD_SEP + ((chunk.z + 1) * 16 - 1);
         return
-            (chunk.x * 16 + in.x) + "," + (chunk.z * 16 + in.z);
+            (chunk.x * 16 + in.x) + COORD_SEP + (chunk.z * 16 + in.z);
     }
 
     public static String formatMaskData(MaskData m) {

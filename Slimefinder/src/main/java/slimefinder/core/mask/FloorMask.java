@@ -17,7 +17,7 @@ public class FloorMask extends AbstractMask {
     public boolean isBlockInside(int blockX, int blockZ) {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                int dsqr = (blockX + x) * (blockX + x) + (blockZ + z) * (blockZ + z);
+                int dsqr = (blockX - x) * (blockX - x) + (blockZ - z) * (blockZ - z);
                 if (despawnSphere && dsqr > rDespawn || exclusionSphere && dsqr <= rExclusion) return false;
             }
         }

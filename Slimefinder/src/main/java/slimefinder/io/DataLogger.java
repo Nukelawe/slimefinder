@@ -3,7 +3,7 @@ package slimefinder.io;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import slimefinder.core.mask.Mask;
+import slimefinder.core.mask.MaskData;
 import slimefinder.util.FormatHelper;
 
 import static slimefinder.util.FormatHelper.LN;
@@ -11,7 +11,7 @@ import static slimefinder.util.FormatHelper.LN;
 public class DataLogger implements IDataLogger {
     
     private FileWriter w;
-    private static final String DELIMITER = ";";
+    public static final String DELIMITER = ";";
     private CLI cli;
     
     public DataLogger(CLI cli) {
@@ -19,7 +19,7 @@ public class DataLogger implements IDataLogger {
     }
 
     @Override
-    public void write(Mask m) throws IOException {
+    public void write(MaskData m) throws IOException {
         write(
             FormatHelper.blockPosFormat(m.chunk, m.in),
             FormatHelper.chunkPosFormat(m.chunk, m.in),
