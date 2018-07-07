@@ -3,7 +3,7 @@ package slimefinder.core.search;
 import java.io.IOException;
 
 import slimefinder.core.ExtremumData;
-import slimefinder.core.mask.AbstractMask;
+import slimefinder.core.mask.*;
 import slimefinder.core.mask.Mask;
 import slimefinder.core.TrackableTask;
 import slimefinder.io.properties.MaskProperties;
@@ -24,7 +24,6 @@ public class SearchTask extends TrackableTask {
     private long matches;
     private Mask m;
     private int progress;
-    private boolean interrupted;
 
     private final boolean fineSearch;
     private final String resultsFile;
@@ -35,7 +34,7 @@ public class SearchTask extends TrackableTask {
         SearchProperties pSearch,
         MaskProperties pMask,
         IDataLogger logger
-    ) {
+    ) throws IOException {
         fineSearch = pSearch.getBoolean(FINE_SEARCH);
         resultsFile = pSearch.getString(RESULTS);
         minBlockSize = pSearch.getInt(MIN_BLOCK_SZ);
@@ -43,13 +42,16 @@ public class SearchTask extends TrackableTask {
         minChunkSize = pSearch.getInt(MIN_CHUNK_SZ);
         maxChunkSize = pSearch.getInt(MAX_CHUNK_SZ);
         centerPos = pSearch.getPosition(CENTER_POS);
-
         int minWidth = pSearch.getInt(MIN_WIDTH);
         int maxWidth = pSearch.getInt(MAX_WIDTH);
+        boolean append = pSearch.getBoolean(APPEND);
+
         this.pSearch = pSearch;
         this.pMask = pMask;
         this.logger = logger;
         this.path = new SearchPath(centerPos.chunk, minWidth, maxWidth);
+
+        logger.start(resultsFile, append);
     }
 
     /**
@@ -61,8 +63,8 @@ public class SearchTask extends TrackableTask {
         setStartTime();
         matches = 0;
         try {
-            logger.start(resultsFile, pSearch.getBoolean(APPEND));
             search();
+            isFinished = true;
         } catch (IOException | InterruptedException e) {
         } finally {
             logger.close();
@@ -89,9 +91,10 @@ public class SearchTask extends TrackableTask {
     private void chunkSearch(int inX, int inZ) throws IOException, InterruptedException {
         while (path.step()) {
             if (m == null) {
+                m = new Mask(pMask, path.getPoint().x, path.getPoint().z, inX, inZ);
                 initializeMasks(inX, inZ);
             } else {
-                m.moveTo(path.getPoint().x, path.getPoint().z, inX, inZ);
+                m.moveToChunk(path.getPoint().x, path.getPoint().z);
                 ExtremumData[] extrema = {maxBlock, maxChunk, minBlock, minChunk};
                 for (ExtremumData extremum : extrema) if (extremum.needsUpdate(m)) extremum.collectData(m);
             }
@@ -99,7 +102,7 @@ public class SearchTask extends TrackableTask {
                 ++matches;
                 logger.write(m);
             }
-            if (interrupted) throw new InterruptedException(); //TODO: implement runtime interrupt
+            if (isInterrupted) throw new InterruptedException();
         }
         ++progress;
     }
@@ -118,7 +121,6 @@ public class SearchTask extends TrackableTask {
     }
 
     private void initializeMasks(int inX, int inZ) {
-        m = new Mask(pMask, path.getPoint().x, path.getPoint().z, inX, inZ);
         maxBlock = new ExtremumData(m) {
             @Override
             public boolean needsUpdate(AbstractMask mask) { return this.blockSize < mask.blockSize; }

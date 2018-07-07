@@ -2,6 +2,7 @@ package slimefinder.core;
 
 import java.io.IOException;
 import java.util.Random;
+import java.util.Scanner;
 
 import slimefinder.core.image.ImageTask;
 import slimefinder.core.search.SearchTask;
@@ -43,9 +44,6 @@ public class Slimefinder {
                 case "-s":
                     search = true;
                     break;
-                case "-h":
-                    help = true;
-                    break;
                 default:
                     cli.warning("Invalid argument '" + arg + "'");
                     cli.flush();
@@ -53,10 +51,7 @@ public class Slimefinder {
                     break;
             }
         }
-
-        if (!search && !images) {
-            help = true;
-        }
+        if (!search && !images) help = true;
     }
 
     public void execute() {
@@ -87,12 +82,28 @@ public class Slimefinder {
     private void runTask(TrackableTask task) {
         cli.printStartInfo(task);
         Thread taskThread = new Thread(task);
+        Thread interrupter = new Thread(() -> {
+            Scanner scanner = new Scanner(System.in);
+            while(!task.isInterrupted) {
+                try {
+                    if (System.in.available() > 0) {
+                        String command = scanner.next();
+                        if (command.equals("q")) {
+                            task.interrupt(cli);
+                        }
+                    }
+                } catch (IOException e) {
+                }
+            }
+        });
+        interrupter.start();
         taskThread.start();
         try {
             do {
                 cli.printProgress(task);
                 Thread.sleep(100);
             } while (taskThread.isAlive());
+            interrupter.interrupt();
         } catch (InterruptedException ie) {
         }
         cli.printEndInfo(task);

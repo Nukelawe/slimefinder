@@ -27,6 +27,7 @@ public class Mask extends AbstractMask {
         needsWeightUpdate = false;
     }
 
+    @Override
     public void moveTo(Position to) {
         moveTo(to.chunk.x, to.chunk.z, to.in.x, to.in.z);
     }

@@ -4,17 +4,19 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.Scanner;
 import javax.imageio.ImageIO;
 
+import slimefinder.core.mask.AbstractMask;
 import slimefinder.core.mask.Mask;
 import slimefinder.core.TrackableTask;
 import slimefinder.io.CLI;
+import slimefinder.io.DataLogger;
 import slimefinder.io.properties.*;
 import slimefinder.util.Position;
 
 import static slimefinder.util.FormatHelper.*;
-import static slimefinder.util.FormatHelper.LN;
 import static slimefinder.io.properties.ImageProperties.*;
 
 public class ImageTask extends TrackableTask {
@@ -31,17 +33,17 @@ public class ImageTask extends TrackableTask {
 
     private ImageGenerator generator;
 
-    private String filename;
-    private String outDir;
+    private final String filename;
+    private final String outDir;
 
     public ImageTask(
         ImageProperties pImage,
         MaskProperties pSlime,
         CLI cli
     ) throws FileNotFoundException {
-        this.cli = cli;
         filename = pImage.getProperty(INPUT_FILE);
         outDir = pImage.getString(OUTPUT_DIR);
+        this.cli = cli;
         this.pSlime = pSlime;
         input = new File(filename);
         generator = new ImageGenerator(pImage);
@@ -54,20 +56,22 @@ public class ImageTask extends TrackableTask {
     }
 
     /**
-     * Draws images of positions specified in the input file and saves them to .png-files.
+     * Draws images of positions listed in a file and saves them as .png-files.
      */
     @Override
     public void run() {
         setStartTime();
         try {
-            Mask mask = new Mask(pSlime, 0, 0, 0, 0);
+            AbstractMask mask = new Mask(pSlime, 0, 0, 0, 0);
             while (scanner.hasNextLine()) {
+                if (isInterrupted) throw new InterruptedException();
                 Position pBlock = readLine(scanner.nextLine());
                 if (pBlock == null) continue;
                 mask.moveTo(pBlock);
                 saveImage(generator.draw(mask), getFilename(mask));
             }
-        } catch (IOException e) {
+            isFinished = true;
+        } catch (IOException | InterruptedException e) {
         } finally {
             scanner.close();
             stop();
@@ -80,11 +84,11 @@ public class ImageTask extends TrackableTask {
         line = line.trim();
         if (line.length() == 0) return null;
         if (line.charAt(0) == '#') return null;
-        String fields[] = line.split(";", -1);
+        String fields[] = line.split(DataLogger.DELIMITER, -1);
         Position out = null;
-        for (int i = 0; i < fields.length; i++) {
+        for (String field : fields) {
             try {
-                out = Position.parsePos(fields[i]);
+                out = Position.parsePos(field);
             } catch (NumberFormatException e) {
             }
             if (out != null) return out;
@@ -111,9 +115,15 @@ public class ImageTask extends TrackableTask {
         imagesGenerated++;
     }
 
-    private static String getFilename(Mask m) {
+    private static String getFilename(AbstractMask m) {
+        int blockX = m.chunk.x * 16;
+        int blockZ = m.chunk.z * 16;
+        if (m.in != null) {
+            blockX += m.in.x;
+            blockZ += m.in.z;
+        }
         return
-            (m.chunk.x * 16 + m.in.x) + "x_" + (m.chunk.z * 16 + m.in.z) + "z_"
+            blockX + "x_" + blockZ + "x_"
             + m.chunkSize + "c" + m.chunkSurfaceArea + "_"
             + m.blockSize + "b" + m.blockSurfaceArea + ".png";
     }

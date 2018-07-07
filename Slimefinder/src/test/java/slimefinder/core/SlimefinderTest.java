@@ -34,16 +34,6 @@ public class SlimefinderTest {
     }
     
     @Test
-    public void helpArgumentIsDetected() {
-        String[] arg = {"-h"};
-        slimefinder.parseArguments(arg);
-        assertTrue(slimefinder.help);
-        assertFalse(slimefinder.images);
-        assertFalse(slimefinder.search);
-
-    }
-    
-    @Test
     public void searchArgumentIsDetected() {
         String[] arg = {"-s"};
         slimefinder.parseArguments(arg);

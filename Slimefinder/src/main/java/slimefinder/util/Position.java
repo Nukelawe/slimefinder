@@ -2,6 +2,8 @@ package slimefinder.util;
 
 import java.util.Objects;
 
+import static slimefinder.util.FormatHelper.*;
+
 /**
  * Position represents a 2-dimensional position in a Minecraft world,
  * storing its block, chunk and within-chunk coordinates.
@@ -18,17 +20,14 @@ public final class Position {
      * @throws NumberFormatException if parsing the string fails.
      */
     public static Position parsePos(String parseText) throws NumberFormatException {
-        NumberFormatException exception = new NumberFormatException(
-            "Failed to parse position from string: '" + parseText +
-            "'. Expected format 'xBlock,zBlock' or 'xChunk:xIn,zChunk:zIn'"
-        );
+        NumberFormatException exception = new NumberFormatException();
         if (parseText == null) throw exception;
         parseText = parseText.trim();
         if (parseText.equals("")) throw exception;
-        String[] coords = parseText.split(",", 2);
+        String[] coords = parseText.split(COORD_SEP, 2);
         if (coords.length != 2) throw exception;
-        String[] x = coords[0].split(":", -1);
-        String[] z = coords[1].split(":", -1);
+        String[] x = coords[0].split(CHUNK_SEP, -1);
+        String[] z = coords[1].split(CHUNK_SEP, -1);
         try {
             if (x.length == 1 && z.length == 1) {
                 return new Position(
@@ -106,6 +105,6 @@ public final class Position {
 
     @Override
     public String toString() {
-        return chunk.x + ":" + in.x + "," + chunk.z + ":" + in.z;
+        return chunk.x + CHUNK_SEP + in.x + "," + chunk.z + CHUNK_SEP + in.z;
     }
 }

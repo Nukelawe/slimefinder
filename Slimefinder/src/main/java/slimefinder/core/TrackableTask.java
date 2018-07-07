@@ -1,5 +1,7 @@
 package slimefinder.core;
 
+import slimefinder.io.CLI;
+
 import java.time.Duration;
 import java.time.Instant;
 
@@ -7,6 +9,7 @@ public abstract class TrackableTask implements Runnable {
     protected Instant startTime;
     protected Duration duration;
     protected boolean isFinished;
+    protected boolean isInterrupted;
 
     public void setStartTime() {
         startTime = Instant.now();
@@ -15,16 +18,20 @@ public abstract class TrackableTask implements Runnable {
     public void stop() {
         duration = Duration.between(startTime, Instant.now());
         Thread.currentThread().interrupt();
-        isFinished = true;
     }
 
     /**
      * @return duration of the task since it was started in nanoseconds.
      */
-    protected synchronized long getDuration() {
+    protected long getDuration() {
         if (startTime == null) return 0;
         if (duration != null) return duration.toNanos();
         return Duration.between(startTime, Instant.now()).toNanos();
+    }
+
+    public synchronized void interrupt(CLI cli) {
+        cli.info("Task interrupted");
+        isInterrupted = true;
     }
 
     public abstract String startInfo();
