@@ -56,7 +56,8 @@ Shape of the mask with only exclusion sphere enabled
 Shape of the mask with both the despawn and exclusion spheres enabled  
 ![](resources/block-mask.png)
 
-While the block mask tells which blocks to check for slime chunks, the **chunk mask** does the same for chunks. However, a chunk being a larger region can be just partially inside the block mask. This makes it is a bit ambiguous what it means for a chunk to be in the despawn sphere for example. With the property **``chunk-weight``** you can specify how many blocks a chunk needs to have inside the corresponding block mask to be considered part of the chunk mask.
+While the block mask tells which blocks to check for slime chunks, the **chunk mask** does the same for chunks. However, unlike a block, it is possible for a chunk to be just partially inside the block mask. This makes it is a bit ambiguous what it means for a chunk to be in the despawn sphere for example. 
+**``chunk-weight``** allows you to specify how many blocks a chunk needs to have inside the corresponding block mask to be considered a part of the chunk mask.
 
 In short, a chunk mask at position P is the set of chunks for which the number of blocks inside the corresponding block mask is greater than the **``chunk-weight``**. 
 
