@@ -18,27 +18,27 @@ If both ``-s`` and ``-i`` are given the search will be performed first and the i
 
 A running task can be interupted by entering ``q`` into the terminal (stdin).
 
-The settings for the slime finder are given in three separate property files. The files ``search.properties`` and ``image.properties`` contain settings for the search- and image generation modes, respectively and the file ``mask.properties`` contains general information that is needed in both modes. 
+The settings for the slime finder are given in three separate property files. The files **``search.properties``** and **``image.properties``** contain settings for the search- and image generation modes, respectively and the file **``mask.properties``** contains general information that is needed in both modes. 
 
 If a required property file does not exist a new one with default properties will be created. Any missing properties will be added and initialized with defaults.
 If a property file contains properties that are not used by the slimefinder they will be ignored and deleted from the property file.
 
 ## Mask properties
 
-The file ``mask.properties`` defines the parameters necessary in both the image generation and search modes. It has
+The file **``mask.properties``** defines the parameters necessary in both the image generation and search modes. It has
 the following fields:
 
 | property | type | default value |
 |:--- |:--- |:---|
-| world-seed     | long | ``0`` |
-| despawn-sphere | boolean  | ``true`` |
-| exclusion sphere | boolean | ``true`` |
-| y-offset | integer | ``0`` |
-| chunk-weight | integer | ``0`` |
+| **``world-seed``**     | long | ``0`` |
+| **``despawn-sphere``** | boolean  | ``true`` |
+| **``exclusion sphere``** | boolean | ``true`` |
+| **``y-offset``** | integer | ``0`` |
+| **``chunk-weight``** | integer | ``0`` |
 
 **Block mask** at position P is the set of block positions with a particular y-coordinate in which a hostile mob could spawn if a player was positioned at P. Here we restrict ourselves to inspect a single y-coordinate because slime spawning depends heavily on altitude. The block mask is what the slimefinder uses to determine which blocks around the player to check for slime chunks.
 
-The y-coordinate is specified relative to P with the property **``y-offset``**. For example with ``y-offset=-16``,  a mask would represent the set of block positions 16 blocks below the player where hostile mobs could spawn.
+The y-coordinate is specified relative to P with the property **``y-offset``**. For example with **``y-offset=-16``**,  a mask would represent the set of block positions 16 blocks below the player where hostile mobs could spawn.
 
 **Despawn sphere** is a sphere of radius 128 blocks centered around a player outside which a slime would instantly despawn. Although it probably is not of much use, you can disable the despawn sphere check by setting the property **``despawn-sphere``** to false which would make all the blocks in the 17x17 chunk area around the player to be included.
 
@@ -71,20 +71,20 @@ How the chunk mask depends on the min-chunk-weight is illustrated below.
 
 ## Search properties
 
-The file ``search.properties`` defines the parameters necessary for the search mode. It has the following fields:
+The file **``search.properties``** defines the parameters necessary for the search mode. It has the following fields:
 
 | property | type | default value |
 |:--- |:--- |:---|
-| append | booean | ``false`` |
-| fine-search | boolean | ``false`` |
-| output-file | string | ``results.csv`` |
-| center-pos | coordinate | ``0c0,0c0`` |
-| max-width | integer | ``1`` |
-| min-width | integer | ``0`` |
-| max-block-size | integer | ``73984`` |
-| min-block-size | integer | ``0`` |
-| max-chunk-size | integer | ``289`` |
-| min-chunk-size | integer | ``0`` |
+| **``append | booean``** | ``false`` |
+| **``fine-search``** | boolean | ``false`` |
+| **``output-file``** | string | ``results.csv`` |
+| **``center-pos``** | coordinate | ``0c0,0c0`` |
+| **``max-width``** | integer | ``1`` |
+| **``min-width``** | integer | ``0`` |
+| **``max-block-size``** | integer | ``73984`` |
+| **``min-block-size``** | integer | ``0`` |
+| **``max-chunk-size``** | integer | ``289`` |
+| **``min-chunk-size``** | integer | ``0`` |
 
 **Block size** is the number of blocks of slime chunks contained by the block mask. 
 **Chunk size** is the number of slime chunks contained by the chunk mask.
@@ -116,23 +116,23 @@ The third line is a comment that will be ignored when the file is read in the im
 
 ## image.properties
 
-The file ``image.properties`` defines the parameters necessary for the image generation mode. It has the following fields:
+The file **``image.properties``** defines the parameters necessary for the image generation mode. It has the following fields:
 
 | property | type | default value |
 |:--- |:--- |:---|
-| input-file | string | ``results.dat`` |
-| output-dir | string | ``images`` |
-| block-width | integer | ``1`` |
-| grid-width | integer | ``1`` |
-| draw-slime-chunks | boolean | ``true`` |
-| draw-block-mask | boolean | ``true`` |
-| draw-chunk-mask | boolean | ``true`` |
-| draw-center| boolean | ``true`` |
+| **``input-file``** | string | ``results.dat`` |
+| **``output-dir``** | string | ``images`` |
+| **``block-width``** | integer | ``1`` |
+| **``grid-width``** | integer | ``1`` |
+| **``draw-slime-chunks``** | boolean | ``true`` |
+| **``draw-block-mask``** | boolean | ``true`` |
+| **``draw-chunk-mask``** | boolean | ``true`` |
+| **``draw-center``** | boolean | ``true`` |
 
-**input-file** is the name of the file where positions to be generated into images will read from.
+**``input-file``** is the name of the file where positions to be generated into images will read from.
 
-**output-dir** is the directory where the generated images will be placed. If the directory does not exist a new one will be created.
+**``output-dir``** is the directory where the generated images will be placed. If the directory does not exist a new one will be created.
 
-**block-width** and **grid-width** are the widths of a block and a gridline in pixels.
+**``block-width``** and **``grid-width``** are the widths of a block and a gridline in pixels.
 
-**draw-slime-chunks**, **draw-block-mask**, **draw-chunk-mask** and **draw-center** determine what features will be drawn on the image.
+**``draw-slime-chunks``**, **``draw-block-mask``**, **``draw-chunk-mask``** and **``draw-center``** determine what features will be drawn on the image.
