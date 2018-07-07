@@ -9,7 +9,7 @@ Run the jar file with the command
 ```
 java -jar slimefinder-<version>.jar <command-line-options>
 ```
-When running in a directory for the first time, the slimefinder will generate the default property files andd exit. Edit the property files for your needs and run using the same command again. To understand what all the properties mean and how to use them please refer to the documentation. 
+When running in a directory for the first time, the slimefinder will generate the default property files and exit. Edit the property files for your needs and run using the same command again. To understand what all the properties mean and how to use them please refer to the documentation. 
 
 ## Documentation
 
