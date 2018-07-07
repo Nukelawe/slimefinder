@@ -10,15 +10,15 @@ in the directory where ``slimefinder.jar`` is located.
 
 The program has two possible modes, search and image generation. They are both specified by giving command line arguments. The available options are the following:
 
-``-s``  
-Enters the search mode.
+``-s``  Enters the search mode.
 
-``-i``  
-Enters the image generation mode.
+``-i``  Enters the image generation mode.
 
-If both ``-s`` and ``-i`` are given the search will be performed first and the image generation immediately afterwards. The settings for the slime finder are given in three separate property files. The files ``search.properties`` and ``image.properties`` contain settings for the search- and image generation modes, respectively and the file ``mask.properties`` contains general information that is needed in both modes. 
+If both ``-s`` and ``-i`` are given the search will be performed first and the image generation immediately afterwards. 
 
 A running task can be interupted by entering ``q`` into the terminal (stdin).
+
+The settings for the slime finder are given in three separate property files. The files ``search.properties`` and ``image.properties`` contain settings for the search- and image generation modes, respectively and the file ``mask.properties`` contains general information that is needed in both modes. 
 
 If a required property file does not exist a new one with default properties will be created. Any missing properties will be added and initialized with defaults.
 If a property file contains properties that are not used by the slimefinder they will be ignored and deleted from the property file.
