@@ -92,8 +92,8 @@ The file ``search.properties`` defines the parameters necessary for the search m
 In the search mode the slime finder looks for positions for which block size and chunk size are within a range specified by the properties **``min-block-size``** and **``max-block-size``** for the block size or **``min-chunk-size``** and **``max-chunk-size``** for the chunk size. For a position to matched it is enough if either its block or chunk size is within the search range.
 
 A starting position for the search is given by specifying a position in the **``center-pos``**-field. The position can be given in either block or chunk format.  
-In block format the coordinates are given in the format ``x,z``,  where ``x`` and ``z`` are the block coordinates.  
-In chunk format the coordinates are given in the format ``Xcx,Zcz``,  where ``X`` and ``Z`` are the chunk coordinates and ``x`` and ``z`` are the block coordinates within the chunk.
+In block format the coordinates are given as ``x,z``,  where ``x`` and ``z`` are the block coordinates.  
+In chunk format the coordinates are given as ``Xcx,Zcz``,  where ``X`` and ``Z`` are the chunk coordinates and ``x`` and ``z`` are the block coordinates within the chunk.
 For example the chunk coordinate ``16,33`` would be equivalent to the chunk coordinate ``1c0,2c1`` as ``16 = 16 * 1 + 0`` and ``33 = 2 * 16 + 1``.
 
 The search will check all chunk positions in the square of width **``max-width``** centered around the starting chunk. Positions in the square of width **``min-width``** centered around the starting chunk will be skipped. The positions will be iterated through in a spiralling manner which ensures that matches are listed from closest to farthest from starting position.
