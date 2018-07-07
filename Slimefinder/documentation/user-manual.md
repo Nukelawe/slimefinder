@@ -110,8 +110,8 @@ block-position;chunk-position;blockSize;chunkSize
 0,0;0c0,0c0;4005/49640;18/222
 #this is a comment
 ```
-The first line is the header.
-The second line represents a mask at position ``0,0`` with a block size of ``4005``, block surface area of ``49640``, chunk size of ``18`` and chunk surface area of ``222``.
+The first line is the header.\
+The second line represents a mask at position ``0,0`` with a block size of ``4005``, block surface area of ``49640``, chunk size of ``18`` and chunk surface area of ``222``.\
 The third line is a comment that will be ignored when the file is read in the image generation mode. The search mode does not generate any comments.
 
 ## image.properties
@@ -130,6 +130,8 @@ The file **``image.properties``** defines the parameters necessary for the image
 | **``draw-center``** | boolean | ``true`` |
 
 **``input-file``** is the name of the file where positions to be generated into images will read from.
+
+When the slimefinder reads this file in the image generation mode it generates an image that contains a map of the mask. Any lines starting with ``#`` will be treated as comments and skipped. The first coordinate found when parsing the line will be used as the position of the mask being generated. It is possible to also generate images of specific positions by typing their coordinates in the correct format in the input file.
 
 **``output-dir``** is the directory where the generated images will be placed. If the directory does not exist a new one will be created.
 
