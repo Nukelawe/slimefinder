@@ -3,16 +3,17 @@
 Slime finder is a command line tool to search for locations in a Minecraft world with specific amounts of slime chunks within certain range of a player. It was designed to look for mobfarm perimeter locations where the number of slime chunks in the perimeter is either very high or very low.
 
 ## Release
-[slimefinder-1.2.jar](https://github.com/Nukelawe/slimefinder/releases/download/1.1/slimefinder-1.2.jar)
+[slimefinder-1.3.jar](https://github.com/Nukelawe/slimefinder/releases/download/1.3/slimefinder-1.3.jar)
 
 Run the jar file with the command
 ```
 java -jar slimefinder-<version>.jar <command-line-options>
 ```
+When running in a directory for the first time, the slimefinder will generate the default property files andd exit. Edit the property files for your needs and run using the same command again. To understand what all the properties mean and how to use them please refer to the documentation. 
 
 ## Documentation
 
-[User manual](Slimefinder/documentation/user-manual.md)
+[User manual](Slimefinder/documentation/user-manual.md) for the latest release.
 
 ## Commands 
 
@@ -21,7 +22,7 @@ java -jar slimefinder-<version>.jar <command-line-options>
 The project can be run in development mode with the command
 
 ```
-mvn exec:java -Dexec.mainClass="slimefinder.Main" -Dexec.args="command line arguments"
+mvn exec:java -Dexec.mainClass="slimefinder.core.Slimefinder" -Dexec.args="command line arguments"
 ```
 
 The jar-file can be built with the command
@@ -37,21 +38,3 @@ Tests are run with the command
 ```
 mvn test
 ```
-
-Test coverage report is created with the command
-
-```
-mvn jacoco:report
-```
-
-The test coverage report can be viewed by opening the file _target/site/jacoco/index.html_ with a browser
-
-### Checkstyle
-
-Style checks defined in the file [checkstyle.xml]() are run with the command
-
-```
- mvn jxr:jxr checkstyle:checkstyle
-```
-
-The error report can be viewed by opening the file _target/site/checkstyle.html_
