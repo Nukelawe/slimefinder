@@ -38,7 +38,7 @@ the following fields:
 
 **Block mask** at position P is the set of block positions with a particular y-coordinate in which a hostile mob could spawn if a player was positioned at P. Here we restrict ourselves to inspect a single y-coordinate because slime spawning depends heavily on altitude. The block mask is what the slimefinder uses to determine which blocks around the player to check for slime chunks.
 
-The y-coordinate is specified relative to P with the property **``y-offset``**. For example with **``y-offset=-16``**,  a mask would represent the set of block positions 16 blocks below the player where hostile mobs could spawn.
+The y-coordinate is specified relative to P with the property **``y-offset``**. For example with ``y-offset=-16``,  a mask would represent the set of block positions 16 blocks below the player where hostile mobs could spawn.
 
 **Despawn sphere** is a sphere of radius 128 blocks centered around a player outside which a slime would instantly despawn. Although it probably is not of much use, you can disable the despawn sphere check by setting the property **``despawn-sphere``** to false which would make all the blocks in the 17x17 chunk area around the player to be included.
 
