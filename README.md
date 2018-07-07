@@ -5,15 +5,12 @@ Slime finder is a command line tool to search for locations in a Minecraft world
 ## Release
 [slimefinder-1.3.jar](https://github.com/Nukelawe/slimefinder/releases/download/1.3/slimefinder-1.3.jar)
 
+## Usage
 Run the jar file with the command
 ```
 java -jar slimefinder-<version>.jar <command-line-options>
 ```
-When running in a directory for the first time, the slimefinder will generate the default property files and exit. Edit the property files for your needs and run using the same command again. To understand what all the properties mean and how to use them please refer to the documentation. 
-
-## Documentation
-
-[User manual](Slimefinder/documentation/user-manual.md) for the latest release.
+When running in a directory for the first time, the slimefinder will generate the default property files and exit. Edit the property files for your needs and run using the same command again. To understand what all the properties mean and how to use them please refer to the [user manual](Slimefinder/documentation/user-manual.md) for the latest release.
 
 ## Commands 
 
