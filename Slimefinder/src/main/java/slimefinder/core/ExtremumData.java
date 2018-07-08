@@ -11,20 +11,5 @@ public abstract class ExtremumData extends MaskData {
         collectData(m);
     }
 
-    public void collectData(AbstractMask m) {
-        chunk.setPoint(m.chunk);
-        if (m.in != null) {
-            if (in != null) {
-                in.setPoint(m.in);
-            } else {
-                in = new Point(m.in);
-            }
-        }
-        blockSize = m.blockSize;
-        chunkSize = m.chunkSize;
-        blockSurfaceArea = m.blockSurfaceArea;
-        chunkSurfaceArea = m.chunkSurfaceArea;
-    }
-
     public abstract boolean needsUpdate(AbstractMask mask);
 }
