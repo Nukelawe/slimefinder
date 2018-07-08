@@ -85,21 +85,21 @@ public abstract class AbstractMask extends MaskData {
      * @param d - direction of movement
      */
     public void moveByChunk(Direction d) {
-        int i, xChunk, zChunk;
+        int i, chunkX, chunkZ;
         for (i = -R_CHUNK; i <= R_CHUNK; i++) {
-            xChunk = (i * d.z) - d.x * R_CHUNK;
-            zChunk = (i * d.x) - d.z * R_CHUNK;
-            if (isSlimeChunk(xChunk, zChunk)) {
-                slimeChunks.remove(new Point(xChunk + chunk.x, zChunk + chunk.z));
+            chunkX = (i * d.z) - d.x * R_CHUNK;
+            chunkZ = (i * d.x) - d.z * R_CHUNK;
+            if (isSlimeChunk(chunkX, chunkZ)) {
+                slimeChunks.remove(new Point(chunkX + chunk.x, chunkZ + chunk.z));
             }
         }
         chunk.moveBy(1, d);
 
         for (i = -R_CHUNK; i <= R_CHUNK; i++) {
-            xChunk = (i * d.z) + d.x * R_CHUNK;
-            zChunk = (i * d.x) + d.z * R_CHUNK;
-            if (isSlimeChunk(xChunk, zChunk)) {
-                slimeChunks.add(new Point(xChunk + chunk.x, zChunk + chunk.z));
+            chunkX = (i * d.z) + d.x * R_CHUNK;
+            chunkZ = (i * d.x) + d.z * R_CHUNK;
+            if (isSlimeChunk(chunkX, chunkZ)) {
+                slimeChunks.add(new Point(chunkX + chunk.x, chunkZ + chunk.z));
             }
         }
 
@@ -116,23 +116,23 @@ public abstract class AbstractMask extends MaskData {
     /**
      * Calculates the weight array that determines the weights for each chunk.
      * Calculates the surface area of this mask. This has to be called
-     * whenever the position within the chunk (posIn) changes.
+     * whenever the position within the chunk (in) changes.
      */
     protected void updateWeights() {
-        int xIn, zIn, xChunk, zChunk, weight;
+        int inX, inZ, chunkX, chunkZ, weight;
         blockSurfaceArea = 0;
         chunkSurfaceArea = 0;
-        for (xChunk = -R_CHUNK; xChunk <= R_CHUNK; xChunk++) {
-            for (zChunk = -R_CHUNK; zChunk <= R_CHUNK; zChunk++) {
+        for (chunkX = -R_CHUNK; chunkX <= R_CHUNK; chunkX++) {
+            for (chunkZ = -R_CHUNK; chunkZ <= R_CHUNK; chunkZ++) {
                 weight = 0;
-                for (xIn = 0; xIn <= 15; xIn++) {
-                    for (zIn = 0; zIn <= 15; zIn++) {
-                        if (isBlockInside(16 * xChunk + xIn, 16 * zChunk + zIn)) {
+                for (inX = 0; inX <= 15; inX++) {
+                    for (inZ = 0; inZ <= 15; inZ++) {
+                        if (isBlockInside(16 * chunkX + inX, 16 * chunkZ + inZ)) {
                             ++weight;
                         }
                     }
                 }
-                chunkWeights[xChunk + R_CHUNK][zChunk + R_CHUNK] = weight;
+                chunkWeights[chunkX + R_CHUNK][chunkZ + R_CHUNK] = weight;
                 blockSurfaceArea += weight;
                 if (weight > chunkWeight) {
                     ++chunkSurfaceArea;
@@ -142,20 +142,19 @@ public abstract class AbstractMask extends MaskData {
     }
 
     /**
-     * Calculates the number of slime chunks in blocks and in chunks under the
-     * mask.
+     * Calculates the number of slime chunks in blocks and in chunks under the mask.
      */
     protected void updateSize() {
-        int xChunk, zChunk;
+        int chunkX, chunkZ;
         blockSize = 0;
         chunkSize = 0;
         slimeChunks.clear();
-        for (xChunk = -R_CHUNK; xChunk <= R_CHUNK; xChunk++) {
-            for (zChunk = -R_CHUNK; zChunk <= R_CHUNK; zChunk++) {
-                if (isSlimeChunk(xChunk, zChunk)) {
-                    slimeChunks.add(new Point(xChunk + chunk.x, zChunk + chunk.z));
-                    blockSize += chunkWeights[xChunk + R_CHUNK][zChunk + R_CHUNK];
-                    if (isChunkInside(xChunk, zChunk)) {
+        for (chunkX = -R_CHUNK; chunkX <= R_CHUNK; chunkX++) {
+            for (chunkZ = -R_CHUNK; chunkZ <= R_CHUNK; chunkZ++) {
+                if (isSlimeChunk(chunkX, chunkZ)) {
+                    slimeChunks.add(new Point(chunkX + chunk.x, chunkZ + chunk.z));
+                    blockSize += chunkWeights[chunkX + R_CHUNK][chunkZ + R_CHUNK];
+                    if (isChunkInside(chunkX, chunkZ)) {
                         ++chunkSize;
                     }
                 }
@@ -164,18 +163,18 @@ public abstract class AbstractMask extends MaskData {
     }
 
     /**
-     * Checks if the chunk at position (xChunk,zChunk) with respect to the
+     * Checks if the chunk at position (chunkX,chunkZ) with respect to the
      * center of the mask is inside the mask. To be considered inside the number
      * of blocks in the chunk that are inside the mask has to be larger than the
      * chunk weight. The chunk weight can be adjusted in the
      * properties-file. It can have values in the range [0, 255].
      *
-     * @param xChunk
-     * @param zChunk
+     * @param chunkX
+     * @param chunkZ
      * @return true if the chunk is considered to be inside the mask
      */
-    public boolean isChunkInside(int xChunk, int zChunk) {
-        return chunkWeights[xChunk + R_CHUNK][zChunk + R_CHUNK] > chunkWeight;
+    public boolean isChunkInside(int chunkX, int chunkZ) {
+        return chunkWeights[chunkX + R_CHUNK][chunkZ + R_CHUNK] > chunkWeight;
     }
 
     /**

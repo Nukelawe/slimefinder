@@ -4,7 +4,7 @@ import slimefinder.util.Point;
 
 import java.util.Objects;
 
-public abstract class MaskData {
+public class MaskData {
 
     /**
      * The chunk and within-chunk positions of the mask
@@ -25,9 +25,25 @@ public abstract class MaskData {
 
     }
 
+    public void collectData(AbstractMask m) {
+        chunk.setPoint(m.chunk);
+        if (m.in != null) {
+            if (in != null) {
+                in.setPoint(m.in);
+            } else {
+                in = new Point(m.in);
+            }
+        }
+        blockSize = m.blockSize;
+        chunkSize = m.chunkSize;
+        blockSurfaceArea = m.blockSurfaceArea;
+        chunkSurfaceArea = m.chunkSurfaceArea;
+    }
+
     public MaskData(MaskData data) {
         chunk = new Point(data.chunk);
-        in = new Point(data.chunk);
+        if (data.in != null)
+            in = new Point(data.in);
         blockSize = data.blockSize;
         chunkSize = data.chunkSize;
         blockSurfaceArea = data.blockSurfaceArea;
@@ -37,14 +53,30 @@ public abstract class MaskData {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || !getClass().isAssignableFrom(MaskData.class)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         MaskData maskData = (MaskData) o;
-        return Objects.equals(chunk, maskData.chunk) &&
+        return blockSurfaceArea == maskData.blockSurfaceArea &&
+            chunkSurfaceArea == maskData.chunkSurfaceArea &&
+            blockSize == maskData.blockSize &&
+            chunkSize == maskData.chunkSize &&
+            Objects.equals(chunk, maskData.chunk) &&
             Objects.equals(in, maskData.in);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(chunk, in);
+    }
+
+    @Override
+    public String toString() {
+        return "MaskData{" +
+            "chunk=" + chunk +
+            ", in=" + in +
+            ", blockSurfaceArea=" + blockSurfaceArea +
+            ", chunkSurfaceArea=" + chunkSurfaceArea +
+            ", blockSize=" + blockSize +
+            ", chunkSize=" + chunkSize +
+            '}';
     }
 }

@@ -10,6 +10,7 @@ import slimefinder.util.Point;
 import static org.junit.Assert.*;
 
 import static slimefinder.io.properties.MaskProperties.*;
+import static slimefinder.util.Direction.*;
 
 public class MaskTest {
     
@@ -28,12 +29,12 @@ public class MaskTest {
     @Test
     public void orthogonalChunkMovementWorks() {
         Mask m = new Mask(pMask, 0, 0, 1, 2);
-        m.moveByChunk(Direction.SOUTH);
-        m.moveByChunk(Direction.EAST);
-        m.moveByChunk(Direction.NORTH);
-        m.moveByChunk(Direction.NORTH);
-        m.moveByChunk(Direction.WEST);
-        m.moveByChunk(Direction.WEST);
+        m.moveByChunk(SOUTH);
+        m.moveByChunk(EAST);
+        m.moveByChunk(NORTH);
+        m.moveByChunk(NORTH);
+        m.moveByChunk(WEST);
+        m.moveByChunk(WEST);
         assertEquals(new Point(-1, -1), m.chunk);
         assertEquals(new Point(1, 2), m.in);
     }
@@ -59,17 +60,17 @@ public class MaskTest {
         Mask mJump = new Mask(pMask, 0, 0, 0, 0);
 
         Direction stepPath[] = {
-            Direction.EAST,
-            Direction.EAST,
-            Direction.SOUTH,
-            Direction.SOUTH,
-            Direction.SOUTH,
-            Direction.SOUTH,
-            Direction.NORTH,
-            Direction.SOUTH,
-            Direction.WEST,
-            Direction.WEST,
-            Direction.EAST
+            EAST,
+            EAST,
+            SOUTH,
+            SOUTH,
+            SOUTH,
+            SOUTH,
+            NORTH,
+            SOUTH,
+            WEST,
+            WEST,
+            EAST
         };
         for (Direction direction : stepPath) {
             mStep.moveByChunk(direction);
@@ -83,5 +84,35 @@ public class MaskTest {
                 );
             }
         }
+    }
+
+    @Test
+    public void makingCyclePathGivesOriginalResult() {
+        Mask m = new Mask(pMask, 15, 2, 7, 7);
+        MaskData dataStart = new MaskData(m);
+
+        m.moveByChunk(EAST);
+        m.moveByChunk(SOUTH);
+        m.moveByChunk(WEST);
+        m.moveByChunk(NORTH);
+
+        MaskData dataEnd = new MaskData(m);
+
+        assertEquals(dataStart, dataEnd);
+    }
+
+    @Test
+    public void initialMaskDataIsCalculatedCorrectly() {
+        Mask m = new Mask(pMask, 15, 2, 6, 7);
+        MaskData data = new MaskData(m);
+        MaskData expected = new MaskData();
+        expected.chunkSurfaceArea = 233;
+        expected.chunkSize = 26;
+        expected.blockSurfaceArea = 49640;
+        expected.blockSize = 5087;
+        expected.chunk = new Point(15, 2);
+        expected.in = new Point(6, 7);
+
+        assertEquals(expected, data);
     }
 }
