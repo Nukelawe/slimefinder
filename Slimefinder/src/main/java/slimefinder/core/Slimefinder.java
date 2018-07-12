@@ -14,6 +14,8 @@ import static slimefinder.util.FormatHelper.LN;
 
 public class Slimefinder {
 
+    private static final Random r = new Random();
+
     private CLI cli;
 
     private MaskProperties pMask;
@@ -119,7 +121,6 @@ public class Slimefinder {
      * @return true if (chunkX, chunkZ) is a slime chunk, false otherwise
      */
     public static boolean isSlimeChunk(long seed, int chunkX, int chunkZ) {
-        Random r = new Random();
         r.setSeed(seed + (long) (chunkX * chunkX * 4987142) + (long) (chunkX * 5947611) + (long) (chunkZ * chunkZ) * 4392871L + (long) (chunkZ * 389711) ^ 987234911L);
         return r.nextInt(10) == 0;
     }
