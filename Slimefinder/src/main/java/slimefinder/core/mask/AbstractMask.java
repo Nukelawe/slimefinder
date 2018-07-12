@@ -89,27 +89,24 @@ public abstract class AbstractMask extends MaskData {
         for (i = -R_CHUNK; i <= R_CHUNK; i++) {
             chunkX = (i * d.z) - d.x * R_CHUNK;
             chunkZ = (i * d.x) - d.z * R_CHUNK;
-            if (isSlimeChunk(chunkX, chunkZ)) {
+            if (isSlimeChunk(chunkX, chunkZ))
                 slimeChunks.remove(new Point(chunkX + chunk.x, chunkZ + chunk.z));
-            }
         }
         chunk.moveBy(1, d);
 
         for (i = -R_CHUNK; i <= R_CHUNK; i++) {
             chunkX = (i * d.z) + d.x * R_CHUNK;
             chunkZ = (i * d.x) + d.z * R_CHUNK;
-            if (isSlimeChunk(chunkX, chunkZ)) {
+            if (isSlimeChunk(chunkX, chunkZ))
                 slimeChunks.add(new Point(chunkX + chunk.x, chunkZ + chunk.z));
-            }
         }
 
         blockSize = 0;
         chunkSize = 0;
         for (Point point : slimeChunks) {
             blockSize += chunkWeights[point.x - chunk.x + R_CHUNK][point.z - chunk.z + R_CHUNK];
-            if (isChunkInside(point.x- chunk.x, point.z - chunk.z)) {
+            if (isChunkInside(point.x- chunk.x, point.z - chunk.z))
                 ++chunkSize;
-            }
         }
     }
 
@@ -127,16 +124,14 @@ public abstract class AbstractMask extends MaskData {
                 weight = 0;
                 for (inX = 0; inX <= 15; inX++) {
                     for (inZ = 0; inZ <= 15; inZ++) {
-                        if (isBlockInside(16 * chunkX + inX, 16 * chunkZ + inZ)) {
+                        if (isBlockInside(16 * chunkX + inX, 16 * chunkZ + inZ))
                             ++weight;
-                        }
                     }
                 }
                 chunkWeights[chunkX + R_CHUNK][chunkZ + R_CHUNK] = weight;
                 blockSurfaceArea += weight;
-                if (weight > chunkWeight) {
+                if (isChunkInside(chunkX, chunkZ))
                     ++chunkSurfaceArea;
-                }
             }
         }
     }
@@ -154,9 +149,8 @@ public abstract class AbstractMask extends MaskData {
                 if (isSlimeChunk(chunkX, chunkZ)) {
                     slimeChunks.add(new Point(chunkX + chunk.x, chunkZ + chunk.z));
                     blockSize += chunkWeights[chunkX + R_CHUNK][chunkZ + R_CHUNK];
-                    if (isChunkInside(chunkX, chunkZ)) {
+                    if (isChunkInside(chunkX, chunkZ))
                         ++chunkSize;
-                    }
                 }
             }
         }
