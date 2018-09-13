@@ -1,64 +1,19 @@
 package slimefinder.util;
 
 /**
- * This class defines objects representing the 4 cardinal directions.
+ * This enum defines objects representing the 4 cardinal directions.
  */
-public class Direction {
-
-    /**
-     * 1,0
-     */
-    public static final Direction EAST = new Direction(1, 0);
-
-    /**
-     * 0,1
-     */
-    public static final Direction SOUTH = new Direction(0, 1);
-
-    /**
-     * -1,0
-     */
-    public static final Direction WEST = new Direction(-1, 0);
-
-    /**
-     * 0,-1
-     */
-    public static final Direction NORTH = new Direction(0, -1);
+public enum Direction {
+    EAST(1, 0),
+    SOUTH(0, 1),
+    WEST(-1, 0),
+    NORTH(0, -1);
 
     public int x, z;
 
-    private Direction(int dx, int dz) {
+    Direction(int dx, int dz) {
         this.x = (dx == 0) ? 0 : (dx > 0) ? 1 : -1;
         this.z = (dz == 0) ? 0 : (dz > 0) ? 1 : -1;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Direction other = (Direction) obj;
-        if (x != other.x) {
-            return false;
-        }
-        if (z != other.z) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 31 * hash + this.x;
-        hash = 31 * hash + this.z;
-        return hash;
     }
 
     @Override
