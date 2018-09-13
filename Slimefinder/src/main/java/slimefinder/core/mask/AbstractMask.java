@@ -50,7 +50,7 @@ public abstract class AbstractMask extends MaskData {
         despawnSphere = pMask.getBoolean(DESPAWN);
         int yOffset = pMask.getInt(OFFSET);
 
-        slimeChunks = new HashSet<>();
+        slimeChunks = new HashSet<>(128, 0.57F);
         chunkWeights = new int[2 * R_CHUNK + 1][2 * R_CHUNK + 1];
         rExclusion = 24 * 24 - Math.min(yOffset * yOffset, 24 * 24);
         rDespawn = 128 * 128 - yOffset * yOffset;
