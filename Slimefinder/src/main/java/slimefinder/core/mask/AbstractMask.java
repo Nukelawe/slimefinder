@@ -70,8 +70,21 @@ public abstract class AbstractMask extends MaskData {
     }
 
     public void moveToChunk(int chunkX, int chunkZ) {
-        chunk.setPoint(chunkX, chunkZ);
-        updateSize();
+        Direction dir = getAdjacent(chunkX, chunkZ);
+        if (dir == null) {
+            chunk.setPoint(chunkX, chunkZ);
+            updateSize();
+        } else {
+            moveByChunk(dir);
+        }
+    }
+
+    private Direction getAdjacent(int chunkX, int chunkZ) {
+        if (chunk.x - chunkX == -1 && chunk.z - chunkZ == 0) return Direction.EAST;
+        if (chunk.x - chunkX == 1 && chunk.z - chunkZ == 0) return Direction.WEST;
+        if (chunk.x - chunkX == 0 && chunk.z - chunkZ == -1) return Direction.SOUTH;
+        if (chunk.x - chunkX == 0 && chunk.z - chunkZ == 1) return Direction.NORTH;
+        return null;
     }
 
     public void moveTo(Position to) {
