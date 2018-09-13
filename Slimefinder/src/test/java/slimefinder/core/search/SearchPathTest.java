@@ -9,7 +9,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import slimefinder.util.Point;
-import slimefinder.util.Position;
 
 public class SearchPathTest {
 
