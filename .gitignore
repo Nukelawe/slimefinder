@@ -3,6 +3,7 @@
 /Slimefinder/images/
 /Slimefinder/*.properties
 /Slimefinder/*.csv
+**/*.jar
 
 # Eclipse dotfiles
 /Slimefinder/.classpath
