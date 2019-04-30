@@ -3,6 +3,7 @@
 Slime finder is a command line tool to search for locations in a Minecraft world with specific amounts of slime chunks within certain range of a player. It was designed to look for mobfarm perimeter locations where the number of slime chunks in the perimeter is either very high or very low.
 
 ## Release
+[slimefinder-1.3.1.jar](https://github.com/Nukelawe/slimefinder/releases/download/1.3/slimefinder-1.3.1.jar)\
 [slimefinder-1.3.jar](https://github.com/Nukelawe/slimefinder/releases/download/1.3/slimefinder-1.3.jar)
 
 ## Usage
