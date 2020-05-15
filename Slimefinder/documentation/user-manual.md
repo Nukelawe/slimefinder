@@ -1,6 +1,6 @@
 # Slimefinder
 
-Slime finder is a command line Java tool to search for locations in a Minecraft world with specific amounts of slime chunks within certain range of a player. It was designed to look for mobfarm perimeter locations where the number of slime chunks in the perimeter is either very high or very low.
+Slime finder is a command line Java tool to search for locations in a Minecraft world with specific amounts of slime chunks within certain range of a player. It was designed to look for mob farm perimeter locations where the number of slime chunks in the perimeter is either very high or very low.
 
 It can be run with the command:
 ```
@@ -36,14 +36,15 @@ the following fields:
 | **``y-offset``** | integer | ``0`` |
 | **``chunk-weight``** | integer | ``0`` |
 
-**Block mask** at position P is the set of block positions with a particular y-coordinate in which a hostile mob could spawn if a player was positioned at P. Here we restrict ourselves to inspect a single y-coordinate because slime spawning depends heavily on altitude. The block mask is what the slimefinder uses to determine which blocks around the player to check for slime chunks.
+**Block mask** at position P is the set of block positions around P in which slime chunks are considered to belong to the cluster. If no additional restrictions are set the mask consists of the block positions in 17x17 chunk area centered around P. The block mask can be (and by default is) further restricted by the despawn and exclusion spheres.
 
-The y-coordinate is specified relative to P with the property **``y-offset``**. For example with **``y-offset=-16``**,  a mask would represent the set of block positions 16 blocks below the player where hostile mobs could spawn.
-
-**Despawn sphere** is a sphere of radius 128 blocks centered around a player outside which a slime would instantly despawn. Although it probably is not of much use, you can disable the despawn sphere check by setting the property **``despawn-sphere``** to false which would make all the blocks in the 17x17 chunk area around the player to be included.
+**Despawn sphere** is a sphere of radius 128 blocks centered around a player outside which a slime would instantly despawn.
+The despawn sphere check can be enabled by setting the property **``despawn-sphere``** to true (default). This removes block positions outside the despawn sphere from the mask.
 
 **Exclusion sphere** is a sphere of radius 24 centered around a player inside which mobs cannot spawn.
-Disabling the exclusion sphere can be done by setting the property **``exclusion-sphere``** to false, which might be needed in some cases where some player movement is expected at the center of a perimeter.
+The exclusion sphere check can be enabled by setting the property **``exclusion-sphere``** to true (default). This removes block positions inside the exclusion sphere from the mask.
+
+The y-coordinate relative to the center of the despawn and exclusion spheres at which the effects of the two spheres are evaluated is specified by the property **``y-offset``**. For example with **``y-offset=-16``**, the mask would be evaluated 16 blocks below the sphere center making the radii of the circular regions eliminated by the despawn and exclusion spheres smaller than 128 and 24, respectively. Notice that for an offset larger than 24 the exclusion sphere even when enabled has no effect and for offset larger than 128 all blocks are removed from the mask. Because of symmetry positive and negative values of **``y-offset``** are equivalent.
 
 How the block mask is calculated from the mask components, despawn sphere and exclusion sphere, is illustrated below.
 
@@ -56,10 +57,8 @@ Shape of the mask with only exclusion sphere enabled
 Shape of the mask with both the despawn and exclusion spheres enabled  
 ![](resources/block-mask.png)
 
-While the block mask tells which blocks to check for slime chunks, the **chunk mask** does the same for chunks. However, unlike a block, it is possible for a chunk to be just partially inside the block mask. This makes it is a bit ambiguous what it means for a chunk to be in the despawn sphere for example. 
-**``chunk-weight``** allows you to specify how many blocks a chunk needs to have inside the corresponding block mask to be considered a part of the chunk mask.
-
-In short, a chunk mask at position P is the set of chunks for which the number of blocks inside the corresponding block mask is greater than the **``chunk-weight``**.
+While the block mask tells which blocks to check for slime chunks, the **chunk mask** does the same for chunks. However, unlike a block, it is possible for a chunk to be just partially inside the block mask. This makes it is a bit ambiguous what it means for a chunk to be in the despawn sphere. 
+**``chunk-weight``** allows specifying how many blocks a chunk needs to have inside the corresponding block mask to be considered a part of the chunk mask. In particular, a chunk mask is the set of chunks for which the number of blocks inside the corresponding block mask is greater than **``chunk-weight``**.
 
 How the chunk mask depends on the min-chunk-weight is illustrated below.
 
@@ -94,11 +93,11 @@ In the search mode the slime finder looks for positions for which block size and
 A starting position for the search is given by specifying a position in the **``center-pos``**-field. The position can be given in either block or chunk format.
 In block format the coordinates are given as ``x,z``,  where ``x`` and ``z`` are the block coordinates.
 In chunk format the coordinates are given as ``Xcx,Zcz``,  where ``X`` and ``Z`` are the chunk coordinates and ``x`` and ``z`` are the block coordinates within the chunk.
-For example the chunk coordinate ``16,33`` would be equivalent to the chunk coordinate ``1c0,2c1`` as ``16 = 16 * 1 + 0`` and ``33 = 2 * 16 + 1``.
+For example the block coordinate ``16,33`` would be equivalent to the chunk coordinate ``1c0,2c1`` as ``16 = 16 * 1 + 0`` and ``33 = 2 * 16 + 1``.
 
 The search will check all chunk positions in the square of width **``max-width``** centered around the starting chunk. Positions in the square of width **``min-width``** centered around the starting chunk will be skipped. The positions will be iterated through in a spiralling manner which ensures that matches are listed from closest to farthest from starting position.
 
-If **``fine-search``** option is set to ``true`` all block positions in each chunk are checked. Otherwise only one position within each chunk is checked.
+If **``fine-search``** option is set to ``true`` all block positions in each chunk are checked. Otherwise only one position within each chunk is checked. Notice that fine search significantly slows down the search! It is intended to be used on small areas once good candidate regions are found with the non-fine search variant.
 
 The matching positions found are written on a file specified by the **``output-file``**-field. If the file does not exist a new one with the given name will be created if possible. Unless **``append``** is set to true an existing output file will be overwritten without a warning! The output-file can also contain a path to a directory.
 
@@ -116,7 +115,7 @@ The third line is a comment that will be ignored when the file is read in the im
 
 ## image.properties
 
-The file **``image.properties``** defines the parameters necessary for the image generation mode. It has the following fields:
+The file **``image.properties``** defines the parameters used in the image generation mode. It has the following fields:
 
 | property | type | default value |
 |:--- |:--- |:---|
