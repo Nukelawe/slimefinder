@@ -18,7 +18,7 @@ If both ``-s`` and ``-i`` are given the search will be performed first and the i
 
 A running task can be interupted by entering ``q`` into the terminal (stdin).
 
-The settings for the slime finder are given in three separate property files. The files **``search.properties``** and **``image.properties``** contain settings for the search- and image generation modes, respectively and the file **``mask.properties``** contains general information that is needed in both modes. 
+The settings for the slime finder are given in three separate property files. The files **``search.properties``** and **``image.properties``** contain settings for the search- and image generation modes and the file **``mask.properties``** contains information needed in both modes. 
 
 If a required property file does not exist a new one with default properties will be created. Any missing properties will be added and initialized with defaults.
 If a property file contains properties that are not used by the slimefinder they will be ignored and deleted from the property file.
@@ -39,12 +39,12 @@ the following fields:
 **Block mask** at position P is the set of block positions around P in which slime chunks are considered to belong to the cluster. If no additional restrictions are set the mask consists of the block positions in 17x17 chunk area centered around P. The block mask can be (and by default is) further restricted by the despawn and exclusion spheres.
 
 **Despawn sphere** is a sphere of radius 128 blocks centered around a player outside which a slime would instantly despawn.
-The despawn sphere check can be enabled by setting the property **``despawn-sphere``** to true (default). This removes block positions outside the despawn sphere from the mask.
+The despawn sphere check can be enabled by setting the property **``despawn-sphere``** to true. This removes block positions outside the despawn sphere from the mask.
 
 **Exclusion sphere** is a sphere of radius 24 centered around a player inside which mobs cannot spawn.
 The exclusion sphere check can be enabled by setting the property **``exclusion-sphere``** to true (default). This removes block positions inside the exclusion sphere from the mask.
 
-The y-coordinate relative to the center of the despawn and exclusion spheres at which the effects of the two spheres are evaluated is specified by the property **``y-offset``**. For example with **``y-offset=-16``**, the mask would be evaluated 16 blocks below the sphere center making the radii of the circular regions eliminated by the despawn and exclusion spheres smaller than 128 and 24, respectively. Notice that for an offset larger than 24 the exclusion sphere even when enabled has no effect and for offset larger than 128 all blocks are removed from the mask. Because of symmetry positive and negative values of **``y-offset``** are equivalent.
+The y-coordinate relative to the center of the despawn and exclusion spheres at which the effects of the two spheres are evaluated is specified by the property **``y-offset``**. For example with **``y-offset=-16``**, the mask would be evaluated 16 blocks below the sphere center making the radii of the circular regions eliminated by the despawn and exclusion spheres smaller than 128 and 24, respectively. Notice that with an offset larger than 24 the exclusion sphere even when enabled has no effect and with an offset larger than 128 the despawn sphere removes all positions from the mask. Because of symmetry positive and negative offsets are equivalent.
 
 How the block mask is calculated from the mask components, despawn sphere and exclusion sphere, is illustrated below.
 
@@ -74,7 +74,7 @@ The file **``search.properties``** defines the parameters necessary for the sear
 
 | property | type | default value |
 |:--- |:--- |:---|
-| **``append``** | booean | ``false`` |
+| **``append``** | boolean | ``false`` |
 | **``fine-search``** | boolean | ``false`` |
 | **``output-file``** | string | ``results.csv`` |
 | **``center-pos``** | coordinate | ``0c0,0c0`` |
