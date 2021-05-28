@@ -9,11 +9,11 @@ import slimefinder.util.FormatHelper;
 import static slimefinder.util.FormatHelper.LN;
 
 public class DataLogger implements IDataLogger {
-    
+
     private FileWriter w;
     public static final String DELIMITER = ";";
     private CLI cli;
-    
+
     public DataLogger(CLI cli) {
         this.cli = cli;
     }
@@ -43,7 +43,7 @@ public class DataLogger implements IDataLogger {
             cli.error("Could not write on the output file");
             throw ex;
         }
-        
+
         try {
             w.flush();
         } catch (IOException ex) {
@@ -51,7 +51,7 @@ public class DataLogger implements IDataLogger {
             throw ex;
         }
     }
-    
+
     public void start(String filename, boolean append) throws IOException {
         try {
             w = new FileWriter(filename, append);
@@ -62,7 +62,7 @@ public class DataLogger implements IDataLogger {
         if (!append)
             write("block-position", "chunk-position", "blockSize", "chunkSize");
     }
-    
+
     public void close() {
         try {
             w.close();

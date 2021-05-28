@@ -8,7 +8,10 @@ import slimefinder.core.image.ImageTask;
 import slimefinder.core.search.SearchTask;
 import slimefinder.io.CLI;
 import slimefinder.io.DataLogger;
-import slimefinder.io.properties.*;
+import slimefinder.io.properties.MaskProperties;
+import slimefinder.io.properties.ImageProperties;
+import slimefinder.io.properties.SearchProperties;
+import slimefinder.io.properties.PropertyLoader;
 
 import static slimefinder.util.FormatHelper.LN;
 

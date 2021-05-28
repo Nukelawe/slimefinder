@@ -1,6 +1,11 @@
 package slimefinder.io.properties;
 
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.Properties;
 
 import slimefinder.util.Position;
 

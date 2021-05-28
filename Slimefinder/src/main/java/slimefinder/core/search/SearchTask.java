@@ -3,8 +3,8 @@ package slimefinder.core.search;
 import java.io.IOException;
 
 import slimefinder.core.ExtremumData;
-import slimefinder.core.mask.*;
 import slimefinder.core.mask.Mask;
+import slimefinder.core.mask.AbstractMask;
 import slimefinder.core.TrackableTask;
 import slimefinder.io.properties.MaskProperties;
 import slimefinder.io.properties.SearchProperties;

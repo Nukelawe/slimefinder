@@ -5,7 +5,7 @@ import slimefinder.util.Position;
 import static slimefinder.core.mask.Mask.R_CHUNK;
 
 public class SearchProperties extends AbstractProperties {
-    
+
     public static final String CENTER_POS = "center-pos";
     public static final String MIN_WIDTH = "min-width";
     public static final String MAX_WIDTH = "max-width";

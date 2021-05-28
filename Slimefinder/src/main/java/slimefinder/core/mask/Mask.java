@@ -1,7 +1,8 @@
 package slimefinder.core.mask;
 
 import slimefinder.io.properties.MaskProperties;
-import slimefinder.util.*;
+import slimefinder.util.Point;
+import slimefinder.util.Position;
 
 public class Mask extends AbstractMask {
 

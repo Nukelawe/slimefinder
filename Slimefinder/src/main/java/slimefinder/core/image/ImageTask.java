@@ -13,7 +13,8 @@ import slimefinder.core.mask.Mask;
 import slimefinder.core.TrackableTask;
 import slimefinder.io.CLI;
 import slimefinder.io.DataLogger;
-import slimefinder.io.properties.*;
+import slimefinder.io.properties.MaskProperties;
+import slimefinder.io.properties.ImageProperties;
 import slimefinder.util.Position;
 
 import static slimefinder.util.FormatHelper.*;

@@ -18,22 +18,22 @@ public class SearchPath {
      * Number of turns since the last edge length increase
      */
     private int turns;
-    
+
     /**
      * These define the search area that this path spirally traverses. The
      * search area is a square of width, maxWidth, with a square of width, minWidth,
      * excluded from the middle.
      */
     private final int minWidth, maxWidth;
-    
+
     private long progress;
-    
+
     /**
      * The middle point of the spiral path. This is the starting point if
      * not skipping any area in the middle (i.e. minWidth <= 0).
      */
     private final Point center;
-    
+
     /**
      * The direction of the next step
      */
@@ -101,7 +101,7 @@ public class SearchPath {
     /**
      * Moves the point by 1 step along a spiral path around the starting
      * point. The first step initializes the point.
-     * 
+     *
      * @return false when moving outside the search region, true otherwise.
      */
     public boolean step() {
@@ -134,7 +134,7 @@ public class SearchPath {
         if (!inProgress) return null;
         return point;
     }
-    
+
     /**
      * @return total number of steps taken on this path
      */
