@@ -17,25 +17,21 @@ public abstract class AbstractProperties extends Properties {
         setDefaults();
     }
 
-    /**
-     * @return enumeration for this properties-object determined by defaultValues insert order.
+    /*
+     * Entry set of the properties specified by the default key insertion order.
      */
     @Override
-    public Enumeration keys() {
-        Enumeration keysEnum = super.keys();
-        Vector<String> keyList = new Vector<>();
-        while(keysEnum.hasMoreElements()){
-            keyList.add((String)keysEnum.nextElement());
-        }
-        Collections.sort(keyList, (s1, s2) -> {
+    public Set<Map.Entry<Object,Object>> entrySet() {
+        TreeSet<Map.Entry<Object,Object>> orderedSet = new TreeSet<>((o1, o2) -> {
             Object defaultKeyOrder[] = defaultValues.keySet().toArray();
             for (int i = 0; i < defaultKeyOrder.length; i++) {
-                if (defaultKeyOrder[i].equals(s1)) return -1;
-                if (defaultKeyOrder[i].equals(s2)) return 1;
+                if (defaultKeyOrder[i].equals(o1.getKey())) return -1;
+                if (defaultKeyOrder[i].equals(o2.getKey())) return 1;
             }
             return 0;
         });
-        return keyList.elements();
+        orderedSet.addAll(super.entrySet());
+        return orderedSet;
     }
 
     /**
